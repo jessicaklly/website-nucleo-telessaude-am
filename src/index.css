@@ -1,9 +1,20 @@
 :root {
+  --white: #ffffff;
+  --olive: #6b7c32;
+  --olive-dark: #4f5d24;
+  --olive-tint: #eef2e1;
+  --olive-bg: #f6f8ef;
+  --border: #dfe5cf;
+  --ink: #27301a;
+  --body: #4b5640;
+  --muted: #76806a;
+  --card-shadow: 0 10px 28px rgba(72, 84, 34, 0.08);
+
   font-family: Inter, 'Segoe UI', Roboto, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  color: #dfeaf5;
-  background: #071521;
+  color: var(--body);
+  background: var(--white);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -23,7 +34,7 @@ html {
 body {
   min-width: 320px;
   min-height: 100vh;
-  background: #071521;
+  background: var(--white);
 }
 
 img {
