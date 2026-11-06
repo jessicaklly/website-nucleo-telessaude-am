@@ -1,9 +1,67 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
-import logoBranca from './assets/logo-pessoa-idosa-branca.png'
+import type { FormEvent, KeyboardEvent, ReactNode } from 'react'
+import logoBranca from './assets/logo-telessaude-funati-branca.png'
+import contatoFoto from './assets/contato.jpg' // Foto: Mikhail Nilov (Pexels, licença gratuita)
+import teleconsultoriaFoto from './assets/teleconsultoria.jpg'
+import teleatendimentoFoto from './assets/teleatendimento.jpg' // Foto: Tima Miroshnichenko (Pexels, licença gratuita)
+import telediagnosticoFoto from './assets/telediagnostico.jpg'
+import teleeducacaoFoto from './assets/teleeducacao.jpg'
 import './App.css'
 
+type Service = {
+  slug: string
+  title: string
+  text: string
+  about: string
+  audience: string
+  benefits: string[]
+  icon: string[]
+  image?: {
+    src: string
+    alt: string
+    caption: string
+    width: number
+    height: number
+    /** Parte da foto que fica visível quando ela é cortada (CSS object-position). */
+    position?: string
+    /** Proporção da moldura (CSS aspect-ratio); o padrão do site é 4 / 3.4. */
+    aspect?: string
+  }
+  howItWorks?: string[]
+  challenges?: string
+  /** Subtítulo do bloco `challenges`; o padrão é "Desafios". */
+  challengesTitle?: string
+}
+
+type NavChild = {
+  label: string
+  short: string
+  id: string
+  href?: string
+  icon: string[]
+}
+
+type NavItem = {
+  label: string
+  id: string
+  href?: string
+  wide?: boolean
+  match?: string[]
+  children?: NavChild[]
+}
+
+type Route =
+  | 'home'
+  | 'quem-somos'
+  | 'equipe'
+  | 'projetos'
+  | 'publicacoes'
+  | 'noticias'
+  | 'contato'
+  | `servico:${string}`
+
 // TODO: confirmar os textos de cada serviço com o Núcleo antes de publicar.
-const services = [
+const services: Service[] = [
   {
     slug: 'teleconsultoria',
     title: 'Teleconsultoria',
@@ -15,8 +73,25 @@ const services = [
       'Esclarecimento de dúvidas clínicas e de processo de trabalho',
       'Redução de deslocamentos de pacientes e profissionais',
       'Apoio de especialistas às equipes da atenção primária',
+      'Mais autonomia e resolutividade na atenção primária',
+      'Menos encaminhamentos desnecessários e melhor uso dos recursos',
+      'Decisões clínicas apoiadas por suporte técnico especializado',
     ],
     icon: ['M4 5.5h16v10.5H10l-4.5 3.5V16H4z', 'M12 8.2v4.6M9.7 10.5h4.6'],
+    image: {
+      src: teleconsultoriaFoto,
+      alt: 'Médica sorrindo e acenando durante uma videochamada pelo celular',
+      caption: 'Apoio de especialistas à distância',
+      width: 1800,
+      height: 1201,
+    },
+    // TODO: informar o prazo de resposta da modalidade assíncrona quando o Núcleo definir.
+    howItWorks: [
+      'O profissional registra o caso e a dúvida na plataforma do Núcleo de Telessaúde. O atendimento pode ser assíncrono, com resposta enviada depois dentro de um prazo definido, ou síncrono, em conversa em tempo real por vídeo, chat ou telefone.',
+      'O especialista do Núcleo responde com fundamentação técnica, orienta a conduta e indica se há ou não necessidade de encaminhamento. Em muitos casos, essa etapa vem antes da regulação, sendo exigida para formalizar o encaminhamento à atenção especializada.',
+    ],
+    challenges:
+      'Os principais pontos de atenção são organizar a carga de trabalho do Núcleo, definir critérios de triagem das solicitações e garantir respostas em tempo adequado.',
   },
   {
     slug: 'teleatendimento',
@@ -29,12 +104,29 @@ const services = [
       'Acesso ao cuidado sem deslocamento',
       'Continuidade do acompanhamento do paciente',
       'Aproximação entre a população e os serviços de saúde',
+      'Acesso a especialistas em locais remotos',
+      'Apoio ao acompanhamento de pacientes crônicos, retornos e orientações',
     ],
     icon: [
       'M5 14v-2a7 7 0 0114 0v2',
       'M5 14h2.5v4H5a1 1 0 01-1-1v-2a1 1 0 011-1zM19 14h-2.5v4H19a1 1 0 001-1v-2a1 1 0 00-1-1z',
       'M17 18.5c0 1.4-1.6 2-4 2',
     ],
+    image: {
+      src: teleatendimentoFoto,
+      alt: 'Pessoa idosa em casa fazendo uma videochamada com uma médica em um tablet, com medicamentos sobre a mesa',
+      caption: 'Atendimento remoto no SUS',
+      width: 1200,
+      height: 800,
+      position: '35% 45%',
+    },
+    howItWorks: [
+      'O paciente agenda a teleconsulta ou é encaminhado a ela pela unidade de saúde de origem. No horário combinado, ele se conecta ao profissional por uma plataforma segura.',
+      'Durante o atendimento, o profissional avalia as queixas, o histórico e os exames do paciente, pode solicitar novos exames e, quando for preciso, indicar uma consulta presencial. Tudo fica registrado em prontuário, para garantir a continuidade do cuidado.',
+    ],
+    challengesTitle: 'Cuidados',
+    challenges:
+      'O teleatendimento precisa ser bem regulado, com consentimento informado e clareza sobre os casos que exigem exame físico presencial. Ele complementa o atendimento presencial, mas não substitui todos os casos.',
   },
   {
     slug: 'telediagnostico',
@@ -47,8 +139,26 @@ const services = [
       'Laudos mais rápidos',
       'Acesso a especialistas onde há poucos profissionais',
       'Apoio à decisão clínica das equipes',
+      'Menos deslocamentos desnecessários de pacientes',
+      'Mais resolutividade na atenção primária',
     ],
     icon: ['M3.5 5h17v11h-17zM9 20h6M12 16v4', 'M6 10.5h3l1.5-2.5 2.5 5 1.5-2.5H18'],
+    image: {
+      src: telediagnosticoFoto,
+      alt: 'Médico de óculos analisando exames de imagem do crânio em um monitor',
+      caption: 'Laudos e pareceres à distância',
+      width: 1200,
+      height: 628,
+      position: '30% 50%',
+      aspect: '4 / 3',
+    },
+    howItWorks: [
+      'Na unidade básica ou no local de atendimento, um profissional realiza o exame, como eletrocardiograma ou radiografia, e envia os arquivos por um sistema seguro. Um especialista do Núcleo de Telessaúde analisa os dados, elabora o laudo e o devolve à unidade que fez a solicitação.',
+      'Com o laudo em mãos, a unidade ajusta o plano de cuidado do paciente e, se for necessário, o encaminha para atendimento presencial. Em muitos casos, o laudo chega dentro de prazos definidos, com garantia de qualidade e respaldo técnico.',
+    ],
+    challengesTitle: 'Limitações e cuidados',
+    challenges:
+      'O serviço exige conectividade e sistemas seguros, e depende da qualidade das imagens e dos dados enviados. Também são necessários protocolos claros, responsabilidades definidas e garantia de sigilo e de segurança da informação.',
   },
   {
     slug: 'tele-educacao',
@@ -61,40 +171,37 @@ const services = [
       'Formação sem sair do local de trabalho',
       'Atualização com base em evidências',
       'Troca de experiências entre profissionais da rede',
+      'Protocolos padronizados e difusão de boas práticas',
+      'Mais integração entre ensino e serviço, com comunidades de prática',
     ],
     icon: [
       'M2.5 9.5L12 5l9.5 4.5L12 14z',
       'M6.5 11.5v4.2c0 1.2 2.5 2.8 5.5 2.8s5.5-1.6 5.5-2.8v-4.2M21.5 9.5v5',
     ],
-  },
-  {
-    slug: 'segunda-opiniao-formativa',
-    title: 'Segunda Opinião Formativa',
-    text: 'Respostas baseadas em evidências a perguntas frequentes, com caráter educativo para a rede.',
-    about:
-      'A Segunda Opinião Formativa (SOF) é uma resposta sistematizada, baseada em evidências científicas, às perguntas mais frequentes das teleconsultorias, com caráter educativo e disponível para toda a rede.',
-    audience: 'Profissionais de saúde da rede.',
-    benefits: [
-      'Respostas baseadas em evidências',
-      'Consulta aberta a toda a rede',
-      'Apoio à educação permanente',
+    image: {
+      src: teleeducacaoFoto,
+      alt: 'Mulher sorrindo, de fones de ouvido, fazendo anotações enquanto assiste a uma aula no notebook',
+      caption: 'Aprender em rede, onde você estiver',
+      width: 1500,
+      height: 1001,
+    },
+    howItWorks: [
+      'Os Núcleos de Telessaúde organizam cursos, webpalestras e aulas, ao vivo ou gravadas, a partir das necessidades de cada território. Os temas variam conforme a demanda: situações epidemiológicas, novos protocolos, atualização de diretrizes ou treinamento no uso de sistemas.',
+      'A participação pode ser síncrona, acompanhando a aula ao vivo, ou assíncrona, com aulas gravadas que cada pessoa assiste no seu próprio ritmo. O acesso é feito por uma plataforma virtual, com vídeos, fóruns de discussão, avaliações e certificado.',
     ],
-    icon: [
-      'M12 6.5C10.5 5.3 8 4.8 4 5v12.5c4-.2 6.5.3 8 1.5 1.5-1.2 4-1.7 8-1.5V5c-4-.2-6.5.3-8 1.5z',
-      'M12 6.5V19',
-    ],
+    challenges:
+      'Para funcionar bem, a tele-educação depende de boa infraestrutura digital, do engajamento dos participantes e de um planejamento pedagógico de qualidade.',
   },
 ]
 
-const serviceShort = {
+const serviceShort: Record<string, string> = {
   teleconsultoria: 'Apoio de especialistas às equipes',
   teleatendimento: 'Atendimento remoto no SUS',
   telediagnostico: 'Laudos e pareceres à distância',
   'tele-educacao': 'Cursos e webconferências',
-  'segunda-opiniao-formativa': 'Respostas baseadas em evidências',
 }
 
-const navigation = [
+const navigation: NavItem[] = [
   { label: 'Início', id: 'inicio' },
   {
     label: 'Institucional',
@@ -123,7 +230,7 @@ const navigation = [
   },
   {
     label: 'Serviços',
-    id: 'solucoes',
+    id: 'servicos',
     wide: true,
     children: services.map((service) => ({
       label: service.title,
@@ -135,35 +242,54 @@ const navigation = [
   },
   {
     label: 'Pesquisa',
-    id: 'publicacoes',
+    id: 'pesquisa',
     children: [
+      {
+        label: 'Projetos',
+        short: 'Pesquisa, desenvolvimento e inovação',
+        id: 'projetos',
+        href: '#/projetos',
+        icon: ['M9 3h6M10 3v6l-5 9a2 2 0 001.8 3h10.4a2 2 0 001.8-3l-5-9V3', 'M8 14h8'],
+      },
       {
         label: 'Publicações',
         short: 'Materiais e produção científica',
         id: 'publicacoes',
+        href: '#/publicacoes',
         icon: ['M7 3h7l5 5v13H7z', 'M14 3v5h5', 'M10 13h6M10 17h6'],
-      },
-      {
-        label: 'Painel de Dados',
-        short: 'Nossos números',
-        id: 'painel',
-        icon: ['M4 20V10M10 20V4M16 20v-7', 'M2 20h20'],
       },
     ],
   },
-  { label: 'Notícias', id: 'noticias' },
-  { label: 'Contato', id: 'contato' },
+  { label: 'Notícias', id: 'noticias', href: '#/noticias' },
+  { label: 'Contato', id: 'contato', href: '#/contato' },
 ]
 
-const hrefOf = (item) => item.href ?? `#${item.id}`
+const hrefOf = (item: { href?: string; id: string }) => item.href ?? `#${item.id}`
 
 const footerLinks = [
   { label: 'Quem somos', href: '#/quem-somos' },
   { label: 'Equipe', href: '#/equipe' },
-  { label: 'Serviços', href: '#solucoes' },
-  { label: 'Notícias', href: '#noticias' },
-  { label: 'Contato', href: '#contato' },
+  { label: 'Parcerias', href: '#parcerias' },
+  { label: 'Notícias', href: '#/noticias' },
+  { label: 'Contato', href: '#/contato' },
 ]
+
+// TODO: preencher com os dados reais do Núcleo quando o site for divulgado.
+// Tudo é opcional e só aparece no site quando preenchido (rodapé e página de contato).
+// Enquanto `email` estiver vazio, o formulário de contato fica desativado, para que nenhuma
+// mensagem seja enviada a um endereço que não seja do Núcleo.
+// Para o mapa, use o endereço de "Compartilhar > Incorporar um mapa" do Google Maps.
+const contactInfo: {
+  email?: string
+  phone?: string
+  address?: string
+  hours?: string
+  mapEmbedUrl?: string
+} = {
+  email: '',
+  phone: '',
+  address: '',
+}
 
 // TODO: colocar os endereços reais das redes sociais do Núcleo.
 const socials = [
@@ -172,15 +298,24 @@ const socials = [
   { label: 'YouTube', href: '#' },
 ]
 
-const pages = {
+const pages: Record<
+  'quem-somos' | 'equipe' | 'projetos' | 'publicacoes' | 'noticias' | 'contato',
+  string
+> = {
   'quem-somos': '#/quem-somos',
   equipe: '#/equipe',
+  projetos: '#/projetos',
+  publicacoes: '#/publicacoes',
+  noticias: '#/noticias',
+  contato: '#/contato',
 }
 
-const getRoute = () => {
+const getRoute = (): Route => {
   const { hash } = window.location
-  const found = Object.entries(pages).find(([, pageHash]) => pageHash === hash)
-  if (found) return found[0]
+  const found = (Object.keys(pages) as (keyof typeof pages)[]).find(
+    (page) => pages[page] === hash,
+  )
+  if (found) return found
 
   const match = hash.match(/^#\/servicos\/(.+)$/)
   if (match && services.some((service) => service.slug === match[1])) {
@@ -192,7 +327,7 @@ const getRoute = () => {
 
 const sectionIds = [
   'inicio',
-  'solucoes',
+  'parcerias',
   'painel',
   'publicacoes',
   'noticias',
@@ -240,6 +375,13 @@ const stats = [
   { value: '—', label: 'exames laudados à distância' },
 ]
 
+type Project = { area: string; title: string; text: string }
+
+// TODO: cadastrar aqui os projetos do Núcleo. Enquanto a lista estiver vazia, a página
+// "Projetos" mostra um aviso de "em breve". Exemplo de item:
+// { area: 'Telediagnóstico', title: 'Nome do projeto', text: 'Resumo em uma ou duas frases.' }
+const projects: Project[] = []
+
 // TODO: substituir pelas publicações reais do Núcleo.
 const publications = [
   { type: 'Boletim', title: 'Boletim informativo do Núcleo', year: 'Em breve' },
@@ -266,7 +408,10 @@ const news = [
   },
 ]
 
-const formatDate = (iso) =>
+// Da mais recente para a mais antiga: a página inicial mostra as primeiras como "últimas notícias".
+const latestNews = [...news].sort((a, b) => b.date.localeCompare(a.date))
+
+const formatDate = (iso: string) =>
   new Date(`${iso}T00:00:00`).toLocaleDateString('pt-BR', {
     day: '2-digit',
     month: 'short',
@@ -285,22 +430,22 @@ const heroSlides = [
     eyebrow: 'Teleconsultoria',
     title: 'Apoio de especialistas à distância',
     text: 'Esclareça dúvidas clínicas e de processo de trabalho com especialistas, ampliando o acesso e reduzindo deslocamentos.',
-    primary: { label: 'Conheça a teleconsultoria', href: '#solucoes' },
-    secondary: { label: 'Fale conosco', href: '#contato' },
+    primary: { label: 'Conheça a teleconsultoria', href: '#/servicos/teleconsultoria' },
+    secondary: { label: 'Fale conosco', href: '#/contato' },
   },
   {
     eyebrow: 'Telediagnóstico',
     title: 'Exames analisados à distância por especialistas',
     text: 'Laudos e pareceres que agilizam o diagnóstico e aproximam o cuidado especializado das equipes de saúde.',
-    primary: { label: 'Conheça o telediagnóstico', href: '#solucoes' },
-    secondary: { label: 'Fale conosco', href: '#contato' },
+    primary: { label: 'Conheça o telediagnóstico', href: '#/servicos/telediagnostico' },
+    secondary: { label: 'Fale conosco', href: '#/contato' },
   },
   {
     eyebrow: 'Tele-educação',
     title: 'Aprender em rede, onde você estiver',
     text: 'Webconferências, cursos e capacitações para a atualização contínua de equipes e gestores.',
-    primary: { label: 'Conheça a tele-educação', href: '#solucoes' },
-    secondary: { label: 'Veja as notícias', href: '#noticias' },
+    primary: { label: 'Conheça a tele-educação', href: '#/servicos/tele-educacao' },
+    secondary: { label: 'Veja as notícias', href: '#/noticias' },
   },
 ]
 
@@ -326,6 +471,31 @@ const purposeItems = [
   },
 ]
 
+// TODO: incluir as demais instituições parceiras do Núcleo (e seus logos) quando forem informadas.
+const partners = [
+  {
+    tag: 'Parceiro institucional',
+    name: 'Ministério da Saúde',
+    text: 'Parceiro na implantação do Núcleo e no fortalecimento da transformação digital da saúde, com foco no SUS na Região Norte.',
+    icon: ['M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6z', 'M12 8.5v5M9.5 11h5'],
+  },
+  {
+    tag: 'Coordenação',
+    name: 'FUnATI',
+    text: 'A Fundação Universidade Aberta da Terceira Idade coordena o Núcleo e leva a atenção especializada à população idosa da Amazônia.',
+    icon: [
+      'M2.5 9.5L12 5l9.5 4.5L12 14z',
+      'M6.5 11.5v4.2c0 1.2 2.5 2.8 5.5 2.8s5.5-1.6 5.5-2.8v-4.2M21.5 9.5v5',
+    ],
+  },
+  {
+    tag: 'Rede de atenção',
+    name: 'Unidades e equipes de saúde',
+    text: 'Profissionais, gestores e unidades de saúde da rede que solicitam e constroem os serviços de telessaúde junto com o Núcleo.',
+    icon: ['M4 21V9l8-5 8 5v12', 'M9 21v-6h6v6', 'M12 9v3M10.5 10.5h3'],
+  },
+]
+
 const testimonials = [
   {
     quote:
@@ -344,15 +514,26 @@ const testimonials = [
   },
 ]
 
-function PageHero({ title, text, section = 'Institucional' }) {
+type PageHeroProps = {
+  title: string
+  text: string
+  /** Nome da seção no caminho de navegação; `null` omite essa parte. */
+  section?: string | null
+}
+
+function PageHero({ title, text, section = 'Institucional' }: PageHeroProps) {
   return (
     <section className="page-hero">
       <div className="container">
         <nav className="breadcrumb" aria-label="Você está em">
           <a href="#inicio">Início</a>
           <span aria-hidden="true">/</span>
-          <span>{section}</span>
-          <span aria-hidden="true">/</span>
+          {section && (
+            <>
+              <span>{section}</span>
+              <span aria-hidden="true">/</span>
+            </>
+          )}
           <span aria-current="page">{title}</span>
         </nav>
         <h1>{title}</h1>
@@ -365,6 +546,7 @@ function PageHero({ title, text, section = 'Institucional' }) {
 function AboutPage() {
   return (
     <div className="page">
+      <div className="screen-first">
       <PageHero
         title="Quem somos"
         text="Conectando conhecimento, tecnologia e cuidado."
@@ -385,7 +567,7 @@ function AboutPage() {
               acesso à atenção especializada para a população idosa da Amazônia.
             </p>
             <p>
-              O Núcleo Telessaúde Amazonas atua como ponte entre a ciência, a gestão e a atenção
+              O Núcleo Telessaúde atua como ponte entre a ciência, a gestão e a atenção
               em saúde, fortalecendo processos clínicos, educacionais e estratégicos em toda a
               rede.
             </p>
@@ -402,8 +584,9 @@ function AboutPage() {
           </div>
         </div>
       </section>
+      </div>
 
-      <section className="section about-section">
+      <section className="section about-section screen">
         <div className="container">
           <div className="purpose-panel">
             <div>
@@ -443,7 +626,7 @@ function AboutPage() {
         </div>
       </section>
 
-      <section className="section about-section">
+      <section className="section about-section screen">
         <div className="container">
           <div className="center-head">
             <h2 className="about-heading">Nossos serviços</h2>
@@ -487,9 +670,37 @@ function AboutPage() {
   )
 }
 
+function TeamGroup({ group }: { group: (typeof teamGroups)[number] }) {
+  return (
+    <div className="team-group">
+      <h3 className="team-group-title">{group.title}</h3>
+
+      <div className="team-grid">
+        {group.members.map((member) => (
+          <article key={member.name} className="team-card">
+            <div className="team-avatar" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="40" height="40">
+                <circle cx="12" cy="8.5" r="4" fill="currentColor" />
+                <path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7" fill="currentColor" />
+              </svg>
+            </div>
+            <div>
+              <h3>{member.name}</h3>
+              <p>{member.role}</p>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 function TeamPage() {
+  const [firstGroup, ...otherGroups] = teamGroups
+
   return (
     <div className="page">
+      <div className="screen-first">
       <PageHero
         title="Equipe"
         text="Conheça quem faz o Núcleo acontecer todos os dias."
@@ -509,27 +720,15 @@ function TeamPage() {
             <p>Conheça abaixo quem lidera cada frente de trabalho.</p>
           </div>
 
-          {teamGroups.map((group) => (
-            <div key={group.title} className="team-group">
-              <h3 className="team-group-title">{group.title}</h3>
+          <TeamGroup group={firstGroup} />
+        </div>
+      </section>
+      </div>
 
-              <div className="team-grid">
-                {group.members.map((member) => (
-                  <article key={member.name} className="team-card">
-                    <div className="team-avatar" aria-hidden="true">
-                      <svg viewBox="0 0 24 24" width="40" height="40">
-                        <circle cx="12" cy="8.5" r="4" fill="currentColor" />
-                        <path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7" fill="currentColor" />
-                      </svg>
-                    </div>
-                    <div>
-                      <h3>{member.name}</h3>
-                      <p>{member.role}</p>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            </div>
+      <section className="section team-section screen">
+        <div className="container">
+          {otherGroups.map((group) => (
+            <TeamGroup key={group.title} group={group} />
           ))}
 
           <div className="about-actions center-actions">
@@ -543,40 +742,101 @@ function TeamPage() {
   )
 }
 
-function ServicePage({ slug }) {
+function ServicePage({ slug }: { slug: string }) {
   const service = services.find((item) => item.slug === slug)
+  if (!service) return null
+
   const others = services.filter((item) => item.slug !== slug)
+
+  const heading = (
+    <div className="section-heading">
+      <span className="eyebrow">O que é</span>
+      <h2>{service.title}</h2>
+    </div>
+  )
+
+  const copy = (
+    <div className="about-copy">
+      <p>{service.about}</p>
+      <div className="about-actions">
+        <a className="btn btn-primary" href="#/contato">
+          Solicitar este serviço
+        </a>
+        <a className="btn btn-secondary" href="#inicio">
+          Voltar ao início
+        </a>
+      </div>
+    </div>
+  )
 
   return (
     <div className="page">
+      <div className="screen-first">
       <PageHero title={service.title} text={service.text} section="Serviços" />
 
       <section className="section">
-        <div className="container intro-block">
-          <div className="section-heading">
-            <span className="eyebrow">O que é</span>
-            <h2>{service.title}</h2>
-          </div>
+        {service.image ? (
+          <div className="container service-feature">
+            <figure className="service-photo">
+              <img
+                src={service.image.src}
+                alt={service.image.alt}
+                width={service.image.width}
+                height={service.image.height}
+                style={{ objectPosition: service.image.position, aspectRatio: service.image.aspect }}
+              />
+              <figcaption className="service-badge">
+                <span className="service-badge-icon" aria-hidden="true">
+                  <svg
+                    viewBox="0 0 24 24"
+                    width="22"
+                    height="22"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    {service.icon.map((d) => (
+                      <path key={d} d={d} />
+                    ))}
+                  </svg>
+                </span>
+                <span className="service-badge-text">
+                  <strong>{service.title}</strong>
+                  <small>{service.image.caption}</small>
+                </span>
+              </figcaption>
+            </figure>
 
-          <div className="about-copy">
-            <p>{service.about}</p>
-            <div className="about-actions">
-              <a className="btn btn-primary" href="#contato">
-                Solicitar este serviço
-              </a>
-              <a className="btn btn-secondary" href="#solucoes">
-                Ver todos os serviços
-              </a>
+            <div className="service-feature-text">
+              {heading}
+              {copy}
             </div>
           </div>
-        </div>
+        ) : (
+          <div className="container intro-block">
+            {heading}
+            {copy}
+          </div>
+        )}
       </section>
+      </div>
 
-      <section className="section section-alt">
+      <section className="section screen">
         <div className="container detail-grid">
           <article className="detail-card">
             <span className="info-tag">Para quem</span>
             <p>{service.audience}</p>
+
+            {service.howItWorks && (
+              <>
+                <h3 className="detail-subtitle">Como funciona</h3>
+                {service.howItWorks.map((paragraph) => (
+                  <p key={paragraph}>{paragraph}</p>
+                ))}
+              </>
+            )}
           </article>
 
           <article className="detail-card">
@@ -586,11 +846,18 @@ function ServicePage({ slug }) {
                 <li key={benefit}>{benefit}</li>
               ))}
             </ul>
+
+            {service.challenges && (
+              <>
+                <h3 className="detail-subtitle">{service.challengesTitle ?? 'Desafios'}</h3>
+                <p>{service.challenges}</p>
+              </>
+            )}
           </article>
         </div>
       </section>
 
-      <section className="section">
+      <section className="section screen screen-end">
         <div className="container">
           <div className="section-heading">
             <span className="eyebrow">Veja também</span>
@@ -607,6 +874,386 @@ function ServicePage({ slug }) {
         </div>
       </section>
     </div>
+  )
+}
+
+type ResearchAction = { label: string; href: string; primary?: boolean }
+
+type ResearchPageProps = {
+  title: string
+  text: string
+  /** Nome da seção no caminho de navegação; o padrão é "Pesquisa". */
+  section?: string | null
+  eyebrow: string
+  heading: string
+  paragraphs: string[]
+  actions: ResearchAction[]
+  children: ReactNode
+}
+
+// Estrutura das páginas do menu Pesquisa: faixa do título + introdução na primeira tela,
+// e o conteúdo (lista ou aviso) na tela seguinte.
+function ResearchPage({
+  title,
+  text,
+  section = 'Pesquisa',
+  eyebrow,
+  heading,
+  paragraphs,
+  actions,
+  children,
+}: ResearchPageProps) {
+  return (
+    <div className="page">
+      <div className="screen-first">
+        <PageHero title={title} text={text} section={section} />
+
+        <section className="section">
+          <div className="container intro-block">
+            <div className="section-heading">
+              <span className="eyebrow">{eyebrow}</span>
+              <h2>{heading}</h2>
+            </div>
+
+            <div className="about-copy">
+              {paragraphs.map((paragraph) => (
+                <p key={paragraph}>{paragraph}</p>
+              ))}
+              <div className="about-actions">
+                {actions.map((action) => (
+                  <a
+                    key={action.label}
+                    className={`btn ${action.primary ? 'btn-primary' : 'btn-secondary'}`}
+                    href={action.href}
+                  >
+                    {action.label}
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <section className="section section-alt screen screen-end">
+        <div className="container">{children}</div>
+      </section>
+    </div>
+  )
+}
+
+function Icon({ paths, size = 22 }: { paths: string[]; size?: number }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width={size}
+      height={size}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      {paths.map((d) => (
+        <path key={d} d={d} />
+      ))}
+    </svg>
+  )
+}
+
+const contactIcons = {
+  headset: [
+    'M5 14v-2a7 7 0 0114 0v2',
+    'M5 14h2.5v4H5a1 1 0 01-1-1v-2a1 1 0 011-1zM19 14h-2.5v4H19a1 1 0 001-1v-2a1 1 0 00-1-1z',
+    'M17 18.5c0 1.4-1.6 2-4 2',
+  ],
+  mail: ['M3 6h18v12H3z', 'M3 7l9 6 9-6'],
+  phone: ['M5 4h4l2 5-2.5 1.5a11 11 0 005 5L15 13l5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2z'],
+  pin: ['M12 21s-7-6-7-11a7 7 0 0114 0c0 5-7 11-7 11z', 'M12 12a2 2 0 100-4 2 2 0 000 4z'],
+  clock: ['M12 21a9 9 0 100-18 9 9 0 000 18z', 'M12 7v5l3 2'],
+}
+
+function ContactPage() {
+  const [sent, setSent] = useState(false)
+
+  // O site não tem servidor para receber mensagens: o envio abre o aplicativo de e-mail do
+  // visitante com a mensagem pronta, endereçada ao e-mail do Núcleo (contactInfo.email).
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    if (!contactInfo.email) return
+    const data = new FormData(event.currentTarget)
+    const field = (name: string) => String(data.get(name) ?? '').trim()
+    const phone = field('telefone')
+    const subject = field('assunto') || 'Contato pelo site'
+    const body = [
+      `Nome: ${field('nome')}`,
+      `E-mail: ${field('email')}`,
+      ...(phone ? [`Telefone: ${phone}`] : []),
+      '',
+      field('mensagem'),
+    ].join('\n')
+
+    window.location.href = `mailto:${contactInfo.email}?subject=${encodeURIComponent(
+      subject,
+    )}&body=${encodeURIComponent(body)}`
+    setSent(true)
+  }
+
+  const formEnabled = Boolean(contactInfo.email)
+
+  // Só mostra o que estiver preenchido em `contactInfo`.
+  const details: { icon: string[]; label: string; value: string; href?: string }[] = [
+    ...(contactInfo.email
+      ? [{ icon: contactIcons.mail, label: 'E-mail', value: contactInfo.email, href: `mailto:${contactInfo.email}` }]
+      : []),
+    ...(contactInfo.phone ? [{ icon: contactIcons.phone, label: 'Telefone', value: contactInfo.phone }] : []),
+    ...(contactInfo.address ? [{ icon: contactIcons.pin, label: 'Endereço', value: contactInfo.address }] : []),
+    ...(contactInfo.hours
+      ? [{ icon: contactIcons.clock, label: 'Horário de atendimento', value: contactInfo.hours }]
+      : []),
+  ]
+
+  return (
+    <div className="page">
+      <div className="screen-first">
+        <PageHero title="Contato" text="Fale com a equipe do Núcleo." section={null} />
+
+        <section className="section">
+          <div className="container contact-grid">
+            <aside
+              className="contact-panel"
+              style={{
+                backgroundImage: `linear-gradient(180deg, rgba(var(--deep-rgb), 0.08) 0%, rgba(var(--deep-rgb), 0.22) 38%, rgba(var(--deep-rgb), 0.95) 78%), url(${contatoFoto})`,
+              }}
+            >
+              <div className="contact-panel-body">
+                <span className="contact-panel-icon">
+                  <Icon paths={contactIcons.headset} size={28} />
+                </span>
+                <h2>Estamos aqui para ajudar</h2>
+                <p>
+                  Tire dúvidas, solicite um serviço ou proponha uma parceria. Escreva para a
+                  equipe do Núcleo.
+                </p>
+
+                {details.length > 0 ? (
+                  <ul className="contact-list">
+                    {details.map((item) => (
+                      <li key={item.label}>
+                        <span className="contact-list-icon">
+                          <Icon paths={item.icon} size={20} />
+                        </span>
+                        <span>
+                          <small>{item.label}</small>
+                          {item.href ? <a href={item.href}>{item.value}</a> : item.value}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="contact-soon">Em breve divulgaremos os nossos canais de atendimento.</p>
+                )}
+              </div>
+            </aside>
+
+            <div className="contact-card">
+              <h2>Envie uma mensagem</h2>
+              <p className="contact-card-text">
+                Preencha o formulário abaixo para entrar em contato com a nossa equipe.
+              </p>
+
+              <form className="contact-form" onSubmit={handleSubmit}>
+                <fieldset className="contact-fieldset" disabled={!formEnabled}>
+                <div className="field-row">
+                  <label className="field">
+                    <span>
+                      Nome completo <b aria-hidden="true">*</b>
+                    </span>
+                    <input
+                      name="nome"
+                      type="text"
+                      required
+                      autoComplete="name"
+                      placeholder="Seu nome completo"
+                    />
+                  </label>
+                  <label className="field">
+                    <span>
+                      E-mail <b aria-hidden="true">*</b>
+                    </span>
+                    <input
+                      name="email"
+                      type="email"
+                      required
+                      autoComplete="email"
+                      placeholder="seu.email@exemplo.com"
+                    />
+                  </label>
+                </div>
+
+                <div className="field-row">
+                  <label className="field">
+                    <span>Telefone</span>
+                    <input name="telefone" type="tel" autoComplete="tel" placeholder="(00) 00000-0000" />
+                  </label>
+                  <label className="field">
+                    <span>Assunto</span>
+                    <input name="assunto" type="text" placeholder="Assunto da mensagem" />
+                  </label>
+                </div>
+
+                <label className="field">
+                  <span>
+                    Mensagem <b aria-hidden="true">*</b>
+                  </span>
+                  <textarea
+                    name="mensagem"
+                    rows={5}
+                    required
+                    placeholder="Escreva sua mensagem aqui..."
+                  />
+                </label>
+
+                <button type="submit" className="btn btn-primary contact-submit">
+                  Enviar mensagem
+                </button>
+                </fieldset>
+
+                <p className="form-note" role="status">
+                  {!formEnabled
+                    ? 'O envio de mensagens por este formulário será ativado em breve.'
+                    : sent
+                      ? `Abrimos o seu aplicativo de e-mail com a mensagem pronta. Se ele não abriu, escreva para ${contactInfo.email}.`
+                      : 'Ao enviar, abriremos o seu aplicativo de e-mail com a mensagem pronta para você revisar.'}
+                </p>
+              </form>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      {contactInfo.mapEmbedUrl && (
+        <section className="section section-alt screen screen-end">
+          <div className="container">
+            <iframe
+              className="contact-map"
+              title="Localização do Núcleo no mapa"
+              src={contactInfo.mapEmbedUrl}
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            />
+          </div>
+        </section>
+      )}
+    </div>
+  )
+}
+
+function NewsCard({ item }: { item: (typeof news)[number] }) {
+  return (
+    <article className="info-card">
+      <span className="info-tag">{item.tag}</span>
+      <h3>{item.title}</h3>
+      <time className="info-meta" dateTime={item.date}>
+        {formatDate(item.date)}
+      </time>
+    </article>
+  )
+}
+
+function NewsPage() {
+  return (
+    <ResearchPage
+      title="Notícias"
+      text="Novidades, eventos e o cronograma de tele-educação do Núcleo."
+      section={null}
+      eyebrow="Fique por dentro"
+      heading="Acompanhe o que acontece no Núcleo"
+      paragraphs={[
+        'Aqui você encontra as novidades dos serviços de telessaúde, as webconferências e as demais atividades de tele-educação, com a data de cada uma.',
+        'Novas notícias são publicadas nesta página à medida que as atividades acontecem.',
+      ]}
+      actions={[
+        { label: 'Fale conosco', href: '#/contato', primary: true },
+        { label: 'Ver publicações', href: '#/publicacoes' },
+      ]}
+    >
+      <div className="info-grid">
+        {latestNews.map((item) => (
+          <NewsCard key={item.title} item={item} />
+        ))}
+      </div>
+    </ResearchPage>
+  )
+}
+
+function ProjectsPage() {
+  return (
+    <ResearchPage
+      title="Projetos"
+      text="Pesquisa, desenvolvimento e inovação em saúde digital."
+      eyebrow="PD&I"
+      heading="Pesquisa e inovação a serviço do SUS"
+      paragraphs={[
+        'O Núcleo desenvolve e apoia iniciativas de pesquisa, desenvolvimento e inovação em saúde digital, com o propósito de apoiar soluções tecnológicas inovadoras para o SUS na Região Norte.',
+        'Nesta página você acompanha os projetos do Núcleo. Os resultados que se transformam em materiais e produção científica ficam reunidos em Publicações.',
+      ]}
+      actions={[
+        { label: 'Ver publicações', href: '#/publicacoes', primary: true },
+        { label: 'Fale conosco', href: '#/contato' },
+      ]}
+    >
+      {projects.length > 0 ? (
+        <div className="info-grid">
+          {projects.map((project) => (
+            <article key={project.title} className="info-card">
+              <span className="info-tag">{project.area}</span>
+              <h3>{project.title}</h3>
+              <p className="info-meta">{project.text}</p>
+            </article>
+          ))}
+        </div>
+      ) : (
+        <div className="empty-state">
+          <span className="info-tag">Em breve</span>
+          <h3>Os projetos do Núcleo serão apresentados aqui</h3>
+          <p>
+            Estamos organizando as informações de cada projeto. Enquanto isso, conheça nossas
+            publicações ou fale com a equipe.
+          </p>
+        </div>
+      )}
+    </ResearchPage>
+  )
+}
+
+function PublicationsPage() {
+  return (
+    <ResearchPage
+      title="Publicações"
+      text="Materiais, boletins e produção científica do Núcleo."
+      eyebrow="Pesquisa"
+      heading="Conhecimento produzido e compartilhado com a rede"
+      paragraphs={[
+        'Reunimos aqui os boletins informativos, os relatórios de atividades e a produção científica e técnica do Núcleo, para que profissionais, gestores e pesquisadores acompanhem o que construímos.',
+        'Os materiais estão sendo organizados e serão disponibilizados em breve.',
+      ]}
+      actions={[
+        { label: 'Ver projetos', href: '#/projetos', primary: true },
+        { label: 'Fale conosco', href: '#/contato' },
+      ]}
+    >
+      <div className="info-grid">
+        {publications.map((item) => (
+          <article key={item.title} className="info-card">
+            <span className="info-tag">{item.type}</span>
+            <h3>{item.title}</h3>
+            <span className="info-meta">{item.year}</span>
+          </article>
+        ))}
+      </div>
+    </ResearchPage>
   )
 }
 
@@ -675,18 +1322,16 @@ function HomePage() {
         </div>
       </section>
 
-      <section id="solucoes" className="section section-alt">
+      <section id="parcerias" className="section section-alt screen">
         <div className="container">
-          <div className="section-heading">
-            <span className="eyebrow eyebrow-plain">Serviços</span>
-            <h2 className="title-underline">
-              Nossos <span>Serviços</span>
-            </h2>
+          <div className="section-heading center">
+            <span className="eyebrow">Parcerias</span>
+            <h2>Parcerias que fortalecem a telessaúde.</h2>
           </div>
 
-          <div className="services-grid">
-            {services.map((service) => (
-              <a key={service.slug} className="service-card" href={`#/servicos/${service.slug}`}>
+          <div className="info-grid">
+            {partners.map((partner) => (
+              <article key={partner.name} className="info-card partner-card">
                 <div className="service-icon" aria-hidden="true">
                   <svg
                     viewBox="0 0 24 24"
@@ -698,22 +1343,27 @@ function HomePage() {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                   >
-                    {service.icon.map((d) => (
+                    {partner.icon.map((d) => (
                       <path key={d} d={d} />
                     ))}
                   </svg>
                 </div>
-                <h3>{service.title}</h3>
-                <span className="service-arrow" aria-hidden="true">
-                  →
-                </span>
-              </a>
+                <span className="info-tag">{partner.tag}</span>
+                <h3>{partner.name}</h3>
+                <p>{partner.text}</p>
+              </article>
             ))}
+          </div>
+
+          <div className="about-actions center-actions partners-cta">
+            <a className="btn btn-primary" href="#/contato">
+              Quero ser parceiro
+            </a>
           </div>
         </div>
       </section>
 
-      <section id="painel" className="section">
+      <section id="painel" className="section screen">
         <div className="container">
           <div className="section-heading center">
             <span className="eyebrow">Painel de Dados</span>
@@ -731,7 +1381,7 @@ function HomePage() {
         </div>
       </section>
 
-      <section id="publicacoes" className="section section-alt">
+      <section id="publicacoes" className="section section-alt screen">
         <div className="container">
           <div className="section-heading center">
             <span className="eyebrow">Publicações</span>
@@ -747,31 +1397,37 @@ function HomePage() {
               </article>
             ))}
           </div>
+
+          <div className="about-actions center-actions partners-cta">
+            <a className="btn btn-secondary" href="#/publicacoes">
+              Ver todas as publicações
+            </a>
+          </div>
         </div>
       </section>
 
-      <section id="noticias" className="section">
+      <section id="noticias" className="section screen">
         <div className="container">
           <div className="section-heading center">
             <span className="eyebrow">Notícias</span>
-            <h2>Acompanhe as novidades e o cronograma de tele-educação.</h2>
+            <h2>Últimas notícias</h2>
           </div>
 
           <div className="info-grid">
-            {news.map((item) => (
-              <article key={item.title} className="info-card">
-                <span className="info-tag">{item.tag}</span>
-                <h3>{item.title}</h3>
-                <time className="info-meta" dateTime={item.date}>
-                  {formatDate(item.date)}
-                </time>
-              </article>
+            {latestNews.slice(0, 3).map((item) => (
+              <NewsCard key={item.title} item={item} />
             ))}
+          </div>
+
+          <div className="about-actions center-actions partners-cta">
+            <a className="btn btn-secondary" href="#/noticias">
+              Ver todas as notícias
+            </a>
           </div>
         </div>
       </section>
 
-      <section id="depoimentos" className="section section-alt">
+      <section id="depoimentos" className="section section-alt screen">
         <div className="container">
           <div className="section-heading center">
             <span className="eyebrow">Depoimentos</span>
@@ -796,7 +1452,7 @@ function HomePage() {
             <h2>Precisando de uma solução de saúde digital mais integrada?</h2>
           </div>
 
-          <a className="btn btn-primary" href="mailto:contato@nucleotelessaude.am.gov.br">
+          <a className="btn btn-primary" href="#/contato">
             Solicitar atendimento
           </a>
         </div>
@@ -806,14 +1462,14 @@ function HomePage() {
 }
 
 function App() {
-  const [route, setRoute] = useState(getRoute)
+  const [route, setRoute] = useState<Route>(getRoute)
   const [active, setActive] = useState('inicio')
   const [menuOpen, setMenuOpen] = useState(false)
-  const [openSubmenu, setOpenSubmenu] = useState(null)
+  const [openSubmenu, setOpenSubmenu] = useState<string | null>(null)
   const [scrolled, setScrolled] = useState(false)
   const [hidden, setHidden] = useState(false)
   const [indicator, setIndicator] = useState({ left: 0, width: 0, visible: false })
-  const navRef = useRef(null)
+  const navRef = useRef<HTMLElement>(null)
   const suppressHide = useRef(0)
 
   useEffect(() => {
@@ -828,10 +1484,10 @@ function App() {
 
   // O submenu fecha ao clicar fora da barra ou ao pressionar Esc.
   useEffect(() => {
-    const onPointerDown = (event) => {
-      if (!event.target.closest('.nav-item')) setOpenSubmenu(null)
+    const onPointerDown = (event: MouseEvent) => {
+      if (!(event.target as Element).closest('.nav-item')) setOpenSubmenu(null)
     }
-    const onKeyDown = (event) => {
+    const onKeyDown = (event: globalThis.KeyboardEvent) => {
       if (event.key === 'Escape') setOpenSubmenu(null)
     }
     document.addEventListener('mousedown', onPointerDown)
@@ -842,7 +1498,7 @@ function App() {
     }
   }, [])
 
-  const toggleSubmenu = (label) =>
+  const toggleSubmenu = (label: string) =>
     setOpenSubmenu((current) => (current === label ? null : label))
 
   // Ao trocar de tela, volta ao topo; ao voltar para a home por um link de seção, rola até ela.
@@ -904,7 +1560,7 @@ function App() {
   }, [])
 
   // Destaque que desliza entre os itens do menu.
-  const placeIndicator = useCallback((el) => {
+  const placeIndicator = useCallback((el: HTMLElement | null | undefined) => {
     if (!el) {
       setIndicator((previous) => ({ ...previous, visible: false }))
       return
@@ -913,7 +1569,7 @@ function App() {
   }, [])
 
   const resetIndicator = useCallback(() => {
-    placeIndicator(navRef.current?.querySelector('.nav-item.is-active'))
+    placeIndicator(navRef.current?.querySelector<HTMLElement>('.nav-item.is-active'))
   }, [placeIndicator])
 
   useLayoutEffect(() => {
@@ -926,7 +1582,7 @@ function App() {
     return () => window.removeEventListener('resize', resetIndicator)
   }, [resetIndicator])
 
-  const isActive = (item) =>
+  const isActive = (item: NavItem) =>
     item.id === current ||
     item.match?.includes(current) ||
     item.children?.some((child) => child.id === current)
@@ -943,7 +1599,7 @@ function App() {
             <img
               className="brand-mark"
               src={logoBranca}
-              alt="Núcleo de Saúde Digital da Pessoa Idosa - FUnATI"
+              alt="Núcleo de Telessaúde FUnATI"
             />
           </a>
 
@@ -989,10 +1645,10 @@ function App() {
                     ? {
                         role: 'button',
                         tabIndex: 0,
-                        'aria-haspopup': 'true',
+                        'aria-haspopup': 'true' as const,
                         'aria-expanded': openSubmenu === item.label,
                         onClick: () => toggleSubmenu(item.label),
-                        onKeyDown: (event) => {
+                        onKeyDown: (event: KeyboardEvent<HTMLAnchorElement>) => {
                           if (event.key === 'Enter' || event.key === ' ') {
                             event.preventDefault()
                             toggleSubmenu(item.label)
@@ -1032,7 +1688,10 @@ function App() {
                       <li key={child.label}>
                         <a
                           href={hrefOf(child)}
-                          onClick={() => setOpenSubmenu(item.label)}
+                          onClick={() => {
+                            setOpenSubmenu(null)
+                            setMenuOpen(false)
+                          }}
                         >
                           <span className="sub-icon" aria-hidden="true">
                             <svg
@@ -1068,6 +1727,10 @@ function App() {
       <main>
         {route === 'quem-somos' && <AboutPage />}
         {route === 'equipe' && <TeamPage />}
+        {route === 'projetos' && <ProjectsPage />}
+        {route === 'publicacoes' && <PublicationsPage />}
+        {route === 'noticias' && <NewsPage />}
+        {route === 'contato' && <ContactPage />}
         {route.startsWith('servico:') && <ServicePage slug={route.slice('servico:'.length)} />}
         {route === 'home' && <HomePage />}
       </main>
@@ -1079,7 +1742,7 @@ function App() {
               <img
                 className="brand-mark"
                 src={logoBranca}
-                alt="Núcleo de Saúde Digital da Pessoa Idosa - FUnATI"
+                alt="Núcleo de Telessaúde FUnATI"
               />
             </div>
             <p className="footer-text">
@@ -1100,16 +1763,21 @@ function App() {
 
           <div className="footer-contact">
             <h3>Contato</h3>
-            <ul>
-              <li>
-                E-mail:{' '}
-                <a href="mailto:contato@nucleotelessaude.am.gov.br">
-                  contato@nucleotelessaude.am.gov.br
-                </a>
-              </li>
-              <li>Telefone: (92) 0000-0000</li>
-              <li>Endereço: Manaus, Amazonas</li>
-            </ul>
+            {contactInfo.email || contactInfo.phone || contactInfo.address ? (
+              <ul>
+                {contactInfo.email && (
+                  <li>
+                    E-mail: <a href={`mailto:${contactInfo.email}`}>{contactInfo.email}</a>
+                  </li>
+                )}
+                {contactInfo.phone && <li>Telefone: {contactInfo.phone}</li>}
+                {contactInfo.address && <li>Endereço: {contactInfo.address}</li>}
+              </ul>
+            ) : (
+              <ul>
+                <li>Em breve divulgaremos os nossos canais de atendimento.</li>
+              </ul>
+            )}
 
             <div className="footer-social" aria-label="Redes sociais">
               {socials.map((item) => (
@@ -1122,7 +1790,7 @@ function App() {
         </div>
 
         <div className="container footer-bottom">
-          <span>© 2026 Núcleo Telessaúde Amazonas</span>
+          <span>© 2026 Núcleo de Telessaúde FUnATI</span>
           <span>Desenvolvido com tecnologia para a saúde</span>
         </div>
       </footer>
