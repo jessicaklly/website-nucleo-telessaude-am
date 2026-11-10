@@ -6,6 +6,14 @@ import teleconsultoriaFoto from './assets/teleconsultoria.jpg'
 import teleatendimentoFoto from './assets/teleatendimento.jpg' // Foto: Tima Miroshnichenko (Pexels, licença gratuita)
 import telediagnosticoFoto from './assets/telediagnostico.jpg'
 import teleeducacaoFoto from './assets/teleeducacao.jpg'
+import logoUfmg from './assets/parceiros/ufmg.png'
+import logoSabia from './assets/parceiros/sabia.png'
+import logoUfg from './assets/parceiros/ufg.png'
+import logoGoverno from './assets/parceiros/governo-brasil.png'
+import logoSusDigital from './assets/parceiros/sus-digital.png'
+import logoMinisterio from './assets/parceiros/ministerio-saude.png'
+import logoUfsc from './assets/parceiros/ufsc.png'
+import MunicipalMap from './MunicipalMap'
 import './App.css'
 
 type Service = {
@@ -327,11 +335,11 @@ const getRoute = (): Route => {
 
 const sectionIds = [
   'inicio',
-  'parcerias',
   'painel',
   'publicacoes',
   'noticias',
   'depoimentos',
+  'parcerias',
   'contato',
 ]
 
@@ -418,7 +426,15 @@ const formatDate = (iso: string) =>
     year: 'numeric',
   })
 
-const heroSlides = [
+type HeroSlide = {
+  eyebrow: string
+  title: string
+  text: string
+  primary: { label: string; href: string }
+  secondary: { label: string; href: string }
+}
+
+const heroSlides: HeroSlide[] = [
   {
     eyebrow: 'Quem somos',
     title: 'Núcleo de Saúde Digital da Pessoa Idosa - FUnATI',
@@ -471,28 +487,82 @@ const purposeItems = [
   },
 ]
 
-// TODO: incluir as demais instituições parceiras do Núcleo (e seus logos) quando forem informadas.
-const partners = [
+type PartnerSlide = {
+  tag: string
+  name: string
+  text: string
+  icon: string[]
+  /** Logo exibido no lugar do ícone. */
+  logo?: string
+  /** Logo branco com fundo transparente: é pintado nas cores da marca por CSS. */
+  tinted?: boolean
+  href?: string
+}
+
+const networkIcon = [
+  'M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0113 0c0 5.4-6.5 11-6.5 11z',
+  'M12 7.7a2.3 2.3 0 100 4.6 2.3 2.3 0 000-4.6z',
+]
+const shieldIcon = ['M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6z', 'M12 8.5v5M9.5 11h5']
+
+// Carrossel de parcerias. TODO: confirmar os textos de cada parceiro com o Núcleo.
+const partnerSlides: PartnerSlide[] = [
   {
     tag: 'Parceiro institucional',
     name: 'Ministério da Saúde',
     text: 'Parceiro na implantação do Núcleo e no fortalecimento da transformação digital da saúde, com foco no SUS na Região Norte.',
-    icon: ['M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6z', 'M12 8.5v5M9.5 11h5'],
+    icon: shieldIcon,
+    logo: logoMinisterio,
+    href: 'https://www.gov.br/saude/',
   },
   {
-    tag: 'Coordenação',
-    name: 'FUnATI',
-    text: 'A Fundação Universidade Aberta da Terceira Idade coordena o Núcleo e leva a atenção especializada à população idosa da Amazônia.',
-    icon: [
-      'M2.5 9.5L12 5l9.5 4.5L12 14z',
-      'M6.5 11.5v4.2c0 1.2 2.5 2.8 5.5 2.8s5.5-1.6 5.5-2.8v-4.2M21.5 9.5v5',
-    ],
+    tag: 'Programa federal',
+    name: 'SUS Digital',
+    text: 'Programa do Ministério da Saúde que impulsiona a transformação digital da saúde em todo o SUS.',
+    icon: shieldIcon,
+    logo: logoSusDigital,
+    href: 'https://www.gov.br/saude/pt-br/composicao/seidigi/sus-digital',
   },
   {
-    tag: 'Rede de atenção',
-    name: 'Unidades e equipes de saúde',
-    text: 'Profissionais, gestores e unidades de saúde da rede que solicitam e constroem os serviços de telessaúde junto com o Núcleo.',
-    icon: ['M4 21V9l8-5 8 5v12', 'M9 21v-6h6v6', 'M12 9v3M10.5 10.5h3'],
+    tag: 'Governo federal',
+    name: 'Governo do Brasil',
+    text: 'Apoio do Governo Federal às iniciativas de saúde digital e ao fortalecimento do SUS.',
+    icon: shieldIcon,
+    logo: logoGoverno,
+    href: 'https://www.gov.br/',
+  },
+  {
+    tag: 'Núcleo de telessaúde',
+    name: 'Santa Catarina',
+    text: 'Saúde Digital da UFSC, parceira em iniciativas de telessaúde e inovação em saúde digital.',
+    icon: networkIcon,
+    logo: logoUfsc,
+    tinted: true,
+    href: 'https://saudedigital.ufsc.br/',
+  },
+  {
+    tag: 'Núcleo de telessaúde',
+    name: 'Goiás',
+    text: 'Telessaúde da Faculdade de Medicina da UFG, parceira na troca de experiências e no fortalecimento da rede.',
+    icon: networkIcon,
+    logo: logoUfg,
+    href: 'https://tele.medicina.ufg.br/',
+  },
+  {
+    tag: 'Núcleo de telessaúde',
+    name: 'Minas Gerais',
+    text: 'Centro de Telessaúde do Hospital das Clínicas da UFMG, parceiro na construção de serviços de saúde digital.',
+    icon: networkIcon,
+    logo: logoUfmg,
+    href: 'https://telessaude.hc.ufmg.br/',
+  },
+  {
+    tag: 'Plataforma',
+    name: 'Sabiá',
+    text: 'Plataforma Sabiá, da UFRN, que apoia os serviços de telessaúde do Núcleo.',
+    icon: networkIcon,
+    logo: logoSabia,
+    href: 'https://login.sabia.ufrn.br/entrar/',
   },
 ]
 
@@ -1259,6 +1329,62 @@ function PublicationsPage() {
 
 function HomePage() {
   const [slide, setSlide] = useState(0)
+  const partnersTrack = useRef<HTMLDivElement>(null)
+  const partnersPaused = useRef(false)
+
+  // Setas: avançam um cartão por vez, em loop.
+  const movePartners = useCallback((direction: 1 | -1) => {
+    const track = partnersTrack.current
+    if (!track) return
+    const card = track.querySelector<HTMLElement>('.partner-card')
+    const step = card ? card.offsetWidth + 22 : track.clientWidth
+    track.scrollBy({ left: direction * step, behavior: 'smooth' })
+  }, [])
+
+  // Passa sozinho e sem parar (loop infinito); pausa com o mouse ou o foco em cima.
+  // Os cartões são repetidos uma vez, e ao chegar na metade a posição volta ao início
+  // sem que se perceba o salto.
+  useEffect(() => {
+    const track = partnersTrack.current
+    if (!track) return undefined
+
+    const speed = 0.6 // pixels por quadro (~36 px/s)
+    let position = track.scrollLeft
+    let frame = 0
+
+    // Largura de uma volta completa = metade dos cartões (repetidos) + o espaço entre eles.
+    const period = () => {
+      const gap = parseFloat(getComputedStyle(track).columnGap) || 0
+      return (track.scrollWidth + gap) / 2
+    }
+
+    const tick = () => {
+      const loop = period()
+      if (loop > 0) {
+        // O conteúdo se repete a cada volta, então o salto de volta é invisível.
+        if (track.scrollLeft >= loop) {
+          track.scrollLeft = track.scrollLeft - loop + 1
+          position = track.scrollLeft
+        } else if (track.scrollLeft <= 0) {
+          // Voltou além do início (seta anterior ou arraste): vai para o fim da primeira volta.
+          track.scrollLeft = loop - 1
+          position = track.scrollLeft
+        }
+        if (!partnersPaused.current) {
+          // Se a pessoa rolou, arrastou ou usou as setas, continua dali.
+          if (Math.abs(track.scrollLeft - position) > 2) position = track.scrollLeft
+          position += speed
+          track.scrollLeft = position
+        } else {
+          position = track.scrollLeft
+        }
+      }
+      frame = window.requestAnimationFrame(tick)
+    }
+
+    frame = window.requestAnimationFrame(tick)
+    return () => window.cancelAnimationFrame(frame)
+  }, [])
 
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined
@@ -1279,7 +1405,8 @@ function HomePage() {
         aria-label="Destaques"
       >
         <div className="hero-slide" key={slide}>
-          <div className="container hero-content">
+          <div className={`container hero-content`}>
+            <div className="hero-text">
             <h1>{heroSlides[slide].title}</h1>
             <p className="hero-subtitle">{heroSlides[slide].text}</p>
 
@@ -1290,6 +1417,7 @@ function HomePage() {
               <a className="btn btn-outline" href={heroSlides[slide].secondary.href}>
                 {heroSlides[slide].secondary.label}
               </a>
+            </div>
             </div>
           </div>
         </div>
@@ -1311,53 +1439,20 @@ function HomePage() {
 
       <section className="trust-bar">
         <div className="container trust-inner">
-          <p>Parceiros e redes de atenção</p>
-          <div className="trust-logos" aria-label="Redes e parceiros">
-            <span>SES-AM</span>
-            <span>MS</span>
-            <span>Unidades</span>
-            <span>Rede de Saúde</span>
-            <span>Especialistas</span>
-          </div>
-        </div>
-      </section>
-
-      <section id="parcerias" className="section section-alt screen">
-        <div className="container">
-          <div className="section-heading center">
-            <span className="eyebrow">Parcerias</span>
-            <h2>Parcerias que fortalecem a telessaúde.</h2>
-          </div>
-
-          <div className="info-grid">
-            {partners.map((partner) => (
-              <article key={partner.name} className="info-card partner-card">
-                <div className="service-icon" aria-hidden="true">
-                  <svg
-                    viewBox="0 0 24 24"
-                    width="30"
-                    height="30"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.6"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    {partner.icon.map((d) => (
-                      <path key={d} d={d} />
-                    ))}
-                  </svg>
-                </div>
-                <span className="info-tag">{partner.tag}</span>
-                <h3>{partner.name}</h3>
-                <p>{partner.text}</p>
-              </article>
-            ))}
-          </div>
-
-          <div className="about-actions center-actions partners-cta">
-            <a className="btn btn-primary" href="#/contato">
-              Quero ser parceiro
+          <p>Acompanhe o Núcleo nas redes sociais</p>
+          <div className="trust-logos" aria-label="Redes sociais">
+            {/* TODO: trocar "#" pelos links oficiais do Núcleo. */}
+            <a className="social-link" href="#" aria-label="Instagram">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <rect x="3.5" y="3.5" width="17" height="17" rx="5" />
+                <circle cx="12" cy="12" r="4" />
+                <circle cx="17.2" cy="6.8" r="0.6" fill="currentColor" />
+              </svg>
+            </a>
+            <a className="social-link" href="#" aria-label="Facebook">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true">
+                <path d="M13.5 21v-7.5h2.6l.4-3h-3V8.6c0-.9.3-1.5 1.600-1.500h1.500V4.400c-.3 0-1.200-.1-2.200-.1-2.300 0-3.800 1.400-3.800 3.900v2.300H8v3h2.600V21z" />
+              </svg>
             </a>
           </div>
         </div>
@@ -1378,6 +1473,12 @@ function HomePage() {
               </div>
             ))}
           </div>
+
+          <div className="muni-heading">
+            <h3>Telediagnóstico no Amazonas</h3>
+            <p>Veja quais municípios do Amazonas já contam com o telediagnóstico do Núcleo.</p>
+          </div>
+          <MunicipalMap />
         </div>
       </section>
 
@@ -1445,18 +1546,109 @@ function HomePage() {
         </div>
       </section>
 
-      <section id="contato" className="cta-section">
-        <div className="container cta-box">
-          <div>
-            <span className="eyebrow">Vamos conversar</span>
-            <h2>Precisando de uma solução de saúde digital mais integrada?</h2>
+      <section id="parcerias" className="section screen screen-end">
+        <div className="container">
+          <div className="section-heading center">
+            <span className="eyebrow">Parcerias</span>
+            <h2>Parcerias que fortalecem a telessaúde.</h2>
           </div>
 
-          <a className="btn btn-primary" href="#/contato">
-            Solicitar atendimento
-          </a>
+          <div
+            className="partner-carousel"
+            role="region"
+            aria-roledescription="carrossel"
+            aria-label="Parceiros"
+            onMouseEnter={() => (partnersPaused.current = true)}
+            onMouseLeave={() => (partnersPaused.current = false)}
+            onFocus={() => (partnersPaused.current = true)}
+            onBlur={() => (partnersPaused.current = false)}
+          >
+            <button
+              type="button"
+              className="carousel-arrow carousel-prev"
+              aria-label="Parceiro anterior"
+              onClick={() => movePartners(-1)}
+            >
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M15 5l-7 7 7 7" />
+              </svg>
+            </button>
+
+            <div className="partner-track" ref={partnersTrack}>
+              {[...partnerSlides, ...partnerSlides].map((partner, index) => (
+                <article
+                  key={`${partner.name}-${index}`}
+                  className="info-card partner-card"
+                  aria-hidden={index >= partnerSlides.length ? true : undefined}
+                >
+                  {partner.logo ? (
+                    <div className="partner-logo">
+                      {partner.tinted ? (
+                        <span
+                          className="logo-tinted"
+                          role="img"
+                          aria-label={`Logo ${partner.name}`}
+                          style={{ ['--logo' as string]: `url(${partner.logo})` }}
+                        />
+                      ) : (
+                        <img src={partner.logo} alt={`Logo ${partner.name}`} />
+                      )}
+                    </div>
+                  ) : (
+                  <div className="service-icon" aria-hidden="true">
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="30"
+                      height="30"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.6"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      {partner.icon.map((d) => (
+                        <path key={d} d={d} />
+                      ))}
+                    </svg>
+                  </div>
+                  )}
+                  <span className="info-tag">{partner.tag}</span>
+                  <h3>{partner.name}</h3>
+                  <p>{partner.text}</p>
+                  {partner.href && (
+                    <a
+                      className="partner-link"
+                      href={partner.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Visitar site <span aria-hidden="true">→</span>
+                    </a>
+                  )}
+                </article>
+              ))}
+            </div>
+
+            <button
+              type="button"
+              className="carousel-arrow carousel-next"
+              aria-label="Próximo parceiro"
+              onClick={() => movePartners(1)}
+            >
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+
+          <div className="about-actions center-actions partners-cta">
+            <a className="btn btn-primary" href="#/contato">
+              Quero ser parceiro
+            </a>
+          </div>
         </div>
       </section>
+
     </>
   )
 }
@@ -1536,21 +1728,36 @@ function App() {
 
   const current = route === 'home' ? active : route
 
-  // A barra fica compacta ao rolar e some ao descer, voltando ao subir.
+  // A barra fica mais sólida ao rolar, some ao descer e volta ao subir.
+  // O movimento é acumulado por direção, para pequenos tremores do
+  // mouse/touchpad não fazerem a barra piscar.
   useEffect(() => {
     let lastY = window.scrollY
+    let travelled = 0
     let ticking = false
 
     const onScroll = () => {
       if (ticking) return
       ticking = true
       window.requestAnimationFrame(() => {
-        const y = window.scrollY
-        setScrolled(y > 24)
-        if (Date.now() < suppressHide.current) setHidden(false)
-        else if (y > lastY + 6 && y > 220) setHidden(true)
-        else if (y < lastY - 6 || y <= 220) setHidden(false)
+        const y = Math.max(window.scrollY, 0)
+        const delta = y - lastY
         lastY = y
+
+        setScrolled(y > 24)
+
+        // Reinicia o acumulado quando a direção muda.
+        if (delta !== 0 && Math.sign(delta) !== Math.sign(travelled)) travelled = 0
+        travelled += delta
+
+        if (Date.now() < suppressHide.current || y <= 160) {
+          setHidden(false)
+          travelled = 0
+        } else if (travelled > 90) {
+          setHidden(true)
+        } else if (travelled < -36) {
+          setHidden(false)
+        }
         ticking = false
       })
     }
