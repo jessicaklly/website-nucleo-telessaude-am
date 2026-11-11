@@ -3576,3 +3576,91 @@ section.screen.screen-end {
   font-size: 0.75rem;
 }
 
+
+/* Seletor de serviço e resumo no mapa */
+.muni-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.muni-tabs button { border: 1px solid currentColor; border-radius: 999px; padding: 4px 12px; background: transparent; color: inherit; font: inherit; font-size: 0.85rem; cursor: pointer; opacity: 0.7; }
+.muni-tabs button.is-active { opacity: 1; font-weight: 700; background: rgba(127, 127, 127, 0.18); }
+.muni-scope { margin: 0 0 8px; font-size: 0.85rem; opacity: 0.75; }
+.muni-kpis { display: flex; flex-wrap: wrap; gap: 14px; margin: 0 0 10px; }
+.muni-kpis div { display: flex; flex-direction: column-reverse; }
+.muni-kpis dt { font-size: 0.75rem; opacity: 0.7; }
+.muni-kpis dd { margin: 0; font-size: 1.3rem; font-weight: 700; }
+.muni-notes { margin: 0 0 12px; padding-left: 18px; font-size: 0.85rem; }
+
+.muni-shape.s-parado { fill: #bcdccb; }
+.muni-shape.s-desativado { fill: #e07a14; }
+.muni-shape.s-atendido { fill: #4f9d73; }
+.legend-dot.s-atendido { background: #4f9d73; border-color: #4f9d73; }
+.legend-dot.s-parado { background: #bcdccb; border-color: #bcdccb; }
+.legend-dot.s-desativado { background: #e07a14; border-color: #e07a14; }
+.muni-shape.is-selected, .muni-shape.is-selected:hover { fill: var(--white); }
+
+.muni-tip { min-width: 11rem; }
+.muni-tip strong { font-size: 1rem; }
+.muni-tip-services { list-style: none; margin: 0.4rem 0 0; padding: 0.4rem 0 0; border-top: 1px solid rgba(127, 127, 127, 0.25); display: grid; gap: 0.2rem; }
+.muni-tip-services li { display: flex; justify-content: space-between; gap: 1rem; font-size: 0.8rem; color: var(--muted); }
+.muni-tip-services li.is-on { color: var(--ink); }
+.muni-tip-services b { font-weight: 700; }
+
+.muni-services { list-style: none; margin: 0 0 12px; padding: 0; display: grid; gap: 8px; }
+.muni-services li { display: grid; gap: 1px; }
+.muni-services span { font-size: 0.8rem; opacity: 0.75; }
+
+/* Barra de rolagem discreta no painel escuro */
+.muni-list {
+  padding-right: 0.35rem;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.35) transparent;
+}
+.muni-list::-webkit-scrollbar { width: 6px; }
+.muni-list::-webkit-scrollbar-track { background: transparent; }
+.muni-list::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.3); border-radius: 999px; }
+.muni-list::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.5); }
+.muni-list::-webkit-scrollbar-button { display: none; }
+
+.muni-panel h3 { margin: 0 0 0.6rem; }
+.muni-services { gap: 0.7rem; margin-bottom: 0.8rem; }
+.muni-services strong { color: var(--white); font-size: 0.95rem; }
+.muni-services span { font-size: 0.8rem; color: var(--on-dark-muted); opacity: 1; }
+
+/* Painel compacto: serviços em cartões */
+.muni-panel { justify-content: flex-start; align-self: start; gap: 0.9rem; }
+.muni-panel h3 { margin: 0; }
+.muni-services { gap: 0.5rem; margin: 0; }
+.muni-services li {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  column-gap: 0.75rem;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 0.8rem;
+  background: rgba(255, 255, 255, 0.06);
+}
+.muni-services .muni-svc-name { color: var(--white); font-weight: 700; font-size: 0.95rem; }
+.muni-services .muni-svc-big { color: var(--white); font-size: 1.25rem; line-height: 1; }
+.muni-services .muni-svc-sub { grid-column: 1 / -1; margin-top: 0.15rem; font-size: 0.75rem; color: var(--on-dark-muted); }
+.muni-status-list button { padding: 0.45rem 0.6rem; }
+
+/* Serviços dentro de Telediagnóstico */
+.subservice-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 1.25rem; margin-top: 1.5rem; }
+.subservice-card { display: grid; gap: 0.6rem; align-content: start; padding: 1.5rem; border-radius: 1.2rem; border: 1px solid rgba(var(--deep-rgb), 0.12); background: var(--white); }
+.subservice-card h3 { margin: 0; font-size: 1.2rem; }
+.subservice-card p { margin: 0; color: var(--muted); }
+.subservice-icon { display: grid; place-items: center; width: 3.4rem; height: 3.4rem; border-radius: 1rem; color: var(--white); background: rgb(var(--deep-rgb)); }
+
+/* Serviços interativos */
+button.subservice-card { text-align: left; font: inherit; color: inherit; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease; }
+button.subservice-card:hover { transform: translateY(-3px); box-shadow: 0 12px 26px rgba(var(--deep-rgb), 0.14); }
+button.subservice-card.is-active { border-color: rgb(var(--deep-rgb)); box-shadow: 0 12px 26px rgba(var(--deep-rgb), 0.18); }
+.subservice-more { font-size: 0.85rem; font-weight: 700; color: var(--muted); }
+.subservice-card.is-active .subservice-more { color: rgb(var(--deep-rgb)); }
+.subservice-detail { display: grid; gap: 0.8rem; justify-items: start; margin-top: 1.25rem; padding: 1.5rem; border-radius: 1.2rem; background: rgba(var(--deep-rgb), 0.06); animation: subservice-in 0.3s ease; }
+.subservice-detail h3, .subservice-detail p { margin: 0; }
+.subservice-stats { display: flex; flex-wrap: wrap; gap: 1.5rem; margin: 0; }
+.subservice-stats div { display: flex; flex-direction: column-reverse; }
+.subservice-stats dt { font-size: 0.8rem; color: var(--muted); }
+.subservice-stats dd { margin: 0; font-size: 1.35rem; font-weight: 700; }
+@keyframes subservice-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .subservice-detail { animation: none; } button.subservice-card { transition: none; } }

@@ -2,25 +2,20 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { PointerEvent as ReactPointerEvent } from 'react'
 import { amazonasMap } from './data/amazonasMap'
 import type { MapMunicipality } from './data/amazonasMap'
-import { telediagnostico } from './data/servicos'
+import { servicosTele } from './data/servicos'
 
 /** Observação opcional exibida no painel ao selecionar um município. */
 const notes: Record<string, string> = {
   Manaus: 'Sede do Núcleo, na FUnATI.',
 }
 
-const normalize = (text: string) =>
-  text
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .toLowerCase()
-
 const { width: MAP_W, height: MAP_H, municipalities } = amazonasMap
 const FULL: View = [0, 0, MAP_W, MAP_H]
 const ASPECT = MAP_W / MAP_H
 
 type View = [number, number, number, number]
-type Filter = 'atendido' | 'nao' | null
+type Status = 'atendido' | 'nao'
+type Filter = Status | null
 
 /** Enquadramento (viewBox) que mostra a caixa informada, com folga. */
 const frame = (box: [number, number, number, number], scale = 2.4): View => {
@@ -37,7 +32,6 @@ const frame = (box: [number, number, number, number], scale = 2.4): View => {
 function MunicipalMap() {
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [hover, setHover] = useState<{ id: string; x: number; y: number } | null>(null)
-  const [query, setQuery] = useState('')
   const [filter, setFilter] = useState<Filter>(null)
   const [view, setView] = useState<View>(FULL)
   const viewRef = useRef<View>(FULL)
@@ -49,10 +43,17 @@ function MunicipalMap() {
   const selected = selectedId ? byId.get(selectedId) : undefined
 
   // Municípios atendidos pelo Telediagnóstico.
-  const served = useMemo(() => new Set(telediagnostico.atendidos), [])
+  const served = useMemo(() => new Set(servicosTele.flatMap((item) => item.atendidos)), [])
 
+  const statusOf = (name: string): Status => (served.has(name) ? 'atendido' : 'nao')
+  const statusText: Record<Status, string> = {
+    atendido: 'Ativo',
+    nao: 'Não ativo',
+  }
+  const count = (status: Status) => municipalities.filter((m) => statusOf(m.name) === status).length
+  const legend: Status[] = ['atendido']
   const servedList = useMemo(() => municipalities.filter((m) => served.has(m.name)), [served])
-  const choiceLabel = telediagnostico.label
+  const choiceLabel = 'Telediagnóstico'
 
   // Anima o enquadramento até o alvo (zoom e deslocamento suaves).
   const animate = useCallback(() => {
@@ -100,17 +101,10 @@ function MunicipalMap() {
     setHover({ id, x: event.clientX - rect.left, y: event.clientY - rect.top })
   }
 
-  const results = useMemo(() => {
-    const term = normalize(query.trim())
-    if (!term) return []
-    return municipalities.filter((m) => normalize(m.name).includes(term)).slice(0, 6)
-  }, [query])
-
   const hovered = hover ? byId.get(hover.id) : undefined
   const zoomed = view[2] < MAP_W - 1
   // Espessura de traço constante na tela, qualquer que seja o zoom.
   const stroke = (view[2] / MAP_W) * 0.9
-  const total = municipalities.length
 
   return (
     <div className="muni-wrap">
@@ -120,23 +114,24 @@ function MunicipalMap() {
             className="muni-svg"
             viewBox={view.join(' ')}
             role="group"
-            aria-label={`Mapa dos municípios do Amazonas atendidos pelo ${choiceLabel}`}
+            aria-label={`Mapa dos municípios do Amazonas atendidos pelo Telediagnóstico`}
             onPointerLeave={() => setHover(null)}
           >
             <g strokeWidth={stroke}>
               {municipalities.map((m) => {
                 const isServed = served.has(m.name)
                 const isSelected = m.id === selectedId
-                const dim = filter !== null && (filter === 'atendido') !== isServed
+                const status = statusOf(m.name)
+                const dim = filter !== null && filter !== status
                 return (
                   <path
                     key={m.id}
                     d={m.d}
-                    className={`muni-shape${isServed ? ' s-ativo' : ''}${dim ? ' is-dim' : ''}${
+                    className={`muni-shape s-${status}${isServed ? ' s-ativo' : ''}${dim ? ' is-dim' : ''}${
                       isSelected ? ' is-selected' : ''
                     }`}
                     role="img"
-                    aria-label={`${m.name}${isServed ? ': atendido' : ': ainda não atendido'}`}
+                    aria-label={`${m.name}: ${statusText[status]}`}
                     onPointerMove={(event) => onMove(event, m.id)}
                     onClick={() => select(isSelected ? null : m)}
                   />
@@ -147,7 +142,7 @@ function MunicipalMap() {
             {/* Marcadores pulsantes nos municípios atendidos. */}
             <g className="muni-pins" pointerEvents="none">
               {servedList
-                .filter(() => filter !== 'nao')
+                .filter(() => filter === null || filter === 'atendido')
                 .map((m) => (
                   <g key={m.id} transform={`translate(${m.x} ${m.y})`}>
                     <circle className="muni-pulse" r={(view[2] / MAP_W) * 9} />
@@ -160,7 +155,15 @@ function MunicipalMap() {
           {hovered && hover && (
             <div className="muni-tip" style={{ left: hover.x, top: hover.y }}>
               <strong>{hovered.name}</strong>
-              <span>{served.has(hovered.name) ? 'Atendido' : 'Ainda não atendido'}</span>
+              <span>{statusText[statusOf(hovered.name)]}</span>
+              <ul className="muni-tip-services">
+                {servicosTele.map((item) => (
+                  <li key={item.id} className={item.atendidos.includes(hovered.name) ? 'is-on' : ''}>
+                    <span>{item.label}</span>
+                    <b>{item.atendidos.includes(hovered.name) ? 'Ativo' : '—'}</b>
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
 
@@ -192,77 +195,45 @@ function MunicipalMap() {
         <aside className="muni-panel">
           <div>
             <h3>{choiceLabel}</h3>
-            <ul className="muni-status-list">
-              <li>
-                <button
-                  type="button"
-                  className={filter === 'atendido' ? 'is-active' : ''}
-                  aria-pressed={filter === 'atendido'}
-                  onClick={() => setFilter(filter === 'atendido' ? null : 'atendido')}
-                >
-                  <span className="legend-dot s-ativo" />
-                  <span className="muni-status-name">Municípios atendidos</span>
-                  <strong>{servedList.length}</strong>
-                </button>
-              </li>
-              <li>
-                <button
-                  type="button"
-                  className={filter === 'nao' ? 'is-active' : ''}
-                  aria-pressed={filter === 'nao'}
-                  onClick={() => setFilter(filter === 'nao' ? null : 'nao')}
-                >
-                  <span className="legend-dot" />
-                  <span className="muni-status-name">Ainda não atendidos</span>
-                  <strong>{total - servedList.length}</strong>
-                </button>
-              </li>
+            <ul className="muni-services">
+              {servicosTele.map((item) => (
+                <li key={item.id}>
+                  <span className="muni-svc-name">{item.label}</span>
+                  <b className="muni-svc-big">{item.resumo[0]!.valor}</b>
+                  <span className="muni-svc-sub">
+                    {item.resumo[0]!.rotulo}
+                    {item.resumo.slice(1).map((r) => ` · ${r.valor} ${r.rotulo}`).join('')}
+                  </span>
+                </li>
+              ))}
             </ul>
-          </div>
-
-          <label className="muni-search">
-            <span className="sr-only">Buscar município</span>
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-              <circle cx="11" cy="11" r="6.5" />
-              <path d="M16 16l4.5 4.5" />
-            </svg>
-            <input
-              type="search"
-              placeholder="Buscar município..."
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              autoComplete="off"
-            />
-          </label>
-
-          {query.trim() ? (
-            <ul className="muni-list" aria-label="Resultados da busca">
-              {results.length === 0 && <li className="muni-empty">Nenhum município encontrado.</li>}
-              {results.map((m) => (
-                <li key={m.id}>
+            <ul className="muni-status-list">
+              {legend.map((status) => (
+                <li key={status}>
                   <button
                     type="button"
-                    className={m.id === selectedId ? 'is-active' : ''}
-                    onClick={() => {
-                      select(m)
-                      setQuery('')
-                    }}
+                    className={filter === status ? 'is-active' : ''}
+                    aria-pressed={filter === status}
+                    onClick={() => setFilter(filter === status ? null : status)}
                   >
-                    <span>{m.name}</span>
-                    <small>{served.has(m.name) ? 'Atendido' : 'Não atendido'}</small>
+                    <span className={`legend-dot s-${status}`} />
+                    <span className="muni-status-name">{statusText[status]}</span>
+                    <strong>{count(status)}</strong>
                   </button>
                 </li>
               ))}
             </ul>
-          ) : selected ? (
+          </div>
+
+          {selected ? (
             <div className="muni-detail">
               <span className={`muni-status${served.has(selected.name) ? ' s-ativo' : ''}`}>
-                {served.has(selected.name) ? 'Atendido' : 'Ainda não atendido'}
+                {statusText[statusOf(selected.name)]}
               </span>
               <h3>{selected.name}</h3>
               <p>
                 {served.has(selected.name)
-                  ? 'Município com serviço de telediagnóstico do Núcleo.'
+                  ? `Serviços ativos: ${servicosTele.filter((item) => item.atendidos.includes(selected.name)).map((item) => item.label).join(', ')}.`
                   : 'O telediagnóstico do Núcleo ainda não chega a este município.'}
               </p>
               {notes[selected.name] && <p>{notes[selected.name]}</p>}
@@ -276,24 +247,7 @@ function MunicipalMap() {
               </button>
             </div>
           ) : (
-            <div className="muni-list-wrap">
-              <h3>Municípios atendidos</h3>
-              {servedList.length === 0 ? (
-                <p className="muni-empty">Em breve.</p>
-              ) : (
-                <ul className="muni-list">
-                  {servedList.map((m) => (
-                    <li key={m.id}>
-                      <button type="button" onClick={() => select(m)}>
-                        <span>{m.name}</span>
-                        <small>Ver no mapa</small>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-              <p className="muni-hint">Clique em um município do mapa ou use a busca.</p>
-            </div>
+            <p className="muni-hint">Passe o mouse ou clique em um município do mapa.</p>
           )}
         </aside>
       </div>

@@ -14,6 +14,7 @@ import logoSusDigital from './assets/parceiros/sus-digital.png'
 import logoMinisterio from './assets/parceiros/ministerio-saude.png'
 import logoUfsc from './assets/parceiros/ufsc.png'
 import MunicipalMap from './MunicipalMap'
+import { servicosTele } from './data/servicos'
 import './App.css'
 
 type Service = {
@@ -35,6 +36,10 @@ type Service = {
     /** Proporção da moldura (CSS aspect-ratio); o padrão do site é 4 / 3.4. */
     aspect?: string
   }
+  /** Serviços oferecidos dentro deste serviço (cartões na página). */
+  subservices?: { id: string; title: string; text: string; where?: string; icon: string[] }[]
+  /** Botão principal da página; o padrão é "Solicitar este serviço" (contato). */
+  cta?: { label: string; href: string }
   howItWorks?: string[]
   challenges?: string
   /** Subtítulo do bloco `challenges`; o padrão é "Desafios". */
@@ -160,6 +165,29 @@ const services: Service[] = [
       position: '30% 50%',
       aspect: '4 / 3',
     },
+    subservices: [
+      {
+        id: 'telecardio',
+        where: 'Todo o Amazonas',
+        title: 'Telecardiologia',
+        text: 'ECG, MAPA e Holter com laudo à distância.',
+        icon: ['M3.5 12h4l2-5 3.5 10 2.5-7 1.5 2h3.5', 'M12 20.5C6 16 3 13 3 9.5A4.5 4.5 0 0 1 7.5 5C9.4 5 11 6 12 7.5 13 6 14.6 5 16.5 5A4.5 4.5 0 0 1 21 9.5c0 3.5-3 6.5-9 11z'],
+      },
+      {
+        id: 'teledermato',
+        where: 'Manaus',
+        title: 'Teledermatologia',
+        text: 'Avaliação de lesões de pele por imagem, com parecer do especialista. Atua somente em Manaus.',
+        icon: ['M12 3.5c3 3.5 5.5 6.5 5.5 9.5a5.5 5.5 0 0 1-11 0C6.5 10 9 7 12 3.5z', 'M9.5 13.5a2.5 2.5 0 0 0 2.5 2.5'],
+      },
+      {
+        id: 'teleoftalmo',
+        where: 'Manaus',
+        title: 'Teleoftalmologia',
+        text: 'Retinografia para triagem da retinopatia diabética e outras doenças dos olhos. Atua em Manaus.',
+        icon: ['M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z', 'M12 14.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z'],
+      },
+    ],
     howItWorks: [
       'Na unidade básica ou no local de atendimento, um profissional realiza o exame, como eletrocardiograma ou radiografia, e envia os arquivos por um sistema seguro. Um especialista do Núcleo de Telessaúde analisa os dados, elabora o laudo e o devolve à unidade que fez a solicitação.',
       'Com o laudo em mãos, a unidade ajusta o plano de cuidado do paciente e, se for necessário, o encaminha para atendimento presencial. Em muitos casos, o laudo chega dentro de prazos definidos, com garantia de qualidade e respaldo técnico.',
@@ -167,6 +195,22 @@ const services: Service[] = [
     challengesTitle: 'Limitações e cuidados',
     challenges:
       'O serviço exige conectividade e sistemas seguros, e depende da qualidade das imagens e dos dados enviados. Também são necessários protocolos claros, responsabilidades definidas e garantia de sigilo e de segurança da informação.',
+  },
+  {
+    slug: 'suporte-tecnico',
+    title: 'Suporte técnico',
+    text: 'Atendimento técnico em informática para as unidades que usam os serviços de telessaúde.',
+    about:
+      'Canal dedicado ao atendimento técnico em informática para as unidades e os profissionais que usam os serviços do Núcleo de Telessaúde, como o telediagnóstico.',
+    audience: 'Unidades de saúde e profissionais que usam os serviços do Núcleo.',
+    benefits: [
+      'Ajuda rápida com equipamentos e sistemas',
+      'Menos interrupções nos exames e nos laudos',
+      'Um canal único para pedir apoio técnico',
+    ],
+    // TODO: colocar em `cta.href` o endereço do suporte on-line, quando houver.
+    cta: { label: 'Acessar serviço', href: '#/contato' },
+    icon: ['M4.5 13v-1.5a7.5 7.5 0 0 1 15 0V13', 'M4.5 13h2.5v4H4.5zM17 13h2.5v4H17z', 'M19.5 17c0 2-2 3-5 3'],
   },
   {
     slug: 'tele-educacao',
@@ -206,6 +250,7 @@ const serviceShort: Record<string, string> = {
   teleconsultoria: 'Apoio de especialistas às equipes',
   teleatendimento: 'Atendimento remoto no SUS',
   telediagnostico: 'Laudos e pareceres à distância',
+  'suporte-tecnico': 'Atendimento técnico em informática',
   'tele-educacao': 'Cursos e webconferências',
 }
 
@@ -812,6 +857,61 @@ function TeamPage() {
   )
 }
 
+function SubserviceExplorer({ items }: { items: NonNullable<Service['subservices']> }) {
+  const [activeId, setActiveId] = useState(items[0]!.id)
+  const active = items.find((item) => item.id === activeId) ?? items[0]!
+  const stats = servicosTele.find((item) => item.id === active.id)?.resumo ?? []
+
+  return (
+    <div className="subservice-explorer">
+      <div className="subservice-grid" role="tablist" aria-label="Serviços de telediagnóstico">
+        {items.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            role="tab"
+            aria-selected={item.id === activeId}
+            className={`subservice-card${item.id === activeId ? ' is-active' : ''}`}
+            onClick={() => setActiveId(item.id)}
+          >
+            <span className="subservice-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                {item.icon.map((d) => (
+                  <path key={d} d={d} />
+                ))}
+              </svg>
+            </span>
+            <h3>{item.title}</h3>
+            <span className="subservice-more">{item.id === activeId ? 'Selecionado' : 'Ver detalhes'}</span>
+          </button>
+        ))}
+      </div>
+
+      <div className="subservice-detail" role="tabpanel" key={active.id}>
+        <h3>{active.title}</h3>
+        <p>{active.text}</p>
+        <dl className="subservice-stats">
+          {active.where && (
+            <div>
+              <dt>Onde atua</dt>
+              <dd>{active.where}</dd>
+            </div>
+          )}
+          {stats.map((stat) => (
+            <div key={stat.rotulo}>
+              <dt>{stat.rotulo}</dt>
+              <dd>{stat.valor}</dd>
+            </div>
+          ))}
+        </dl>
+        <a className="btn btn-primary" href="#/contato">
+          Solicitar {active.title}
+        </a>
+      </div>
+    </div>
+  )
+}
+
 function ServicePage({ slug }: { slug: string }) {
   const service = services.find((item) => item.slug === slug)
   if (!service) return null
@@ -829,8 +929,8 @@ function ServicePage({ slug }: { slug: string }) {
     <div className="about-copy">
       <p>{service.about}</p>
       <div className="about-actions">
-        <a className="btn btn-primary" href="#/contato">
-          Solicitar este serviço
+        <a className="btn btn-primary" href={service.cta?.href ?? '#/contato'}>
+          {service.cta?.label ?? 'Solicitar este serviço'}
         </a>
         <a className="btn btn-secondary" href="#inicio">
           Voltar ao início
@@ -892,6 +992,18 @@ function ServicePage({ slug }: { slug: string }) {
         )}
       </section>
       </div>
+
+      {service.subservices && (
+        <section className="section screen">
+          <div className="container">
+            <div className="section-heading">
+              <span className="eyebrow">Serviços</span>
+              <h2>O que oferecemos em {service.title}</h2>
+            </div>
+            <SubserviceExplorer items={service.subservices} />
+          </div>
+        </section>
+      )}
 
       <section className="section screen">
         <div className="container detail-grid">
