@@ -420,12 +420,14 @@ const teamGroups = [
   },
 ]
 
-// TODO: substituir pelos números reais do Núcleo antes de publicar.
+// TODO: DEMONSTRAÇÃO. Substituir pelos números reais do Núcleo antes de publicar.
+// "Teleconsultorias" é um valor fictício. Os demais vêm dos painéis (municípios ativos na
+// PNTD, profissionais capacitados e exames de telecardio + teleoftalmo).
 const stats = [
-  { value: '—', label: 'teleconsultorias realizadas' },
-  { value: '—', label: 'municípios atendidos' },
-  { value: '—', label: 'profissionais cadastrados' },
-  { value: '—', label: 'exames laudados à distância' },
+  { value: '2.350', label: 'teleconsultorias realizadas' },
+  { value: '20', label: 'municípios atendidos' },
+  { value: '384', label: 'profissionais cadastrados' },
+  { value: '53.551', label: 'exames laudados à distância' },
 ]
 
 type Project = { area: string; title: string; text: string }
@@ -1534,6 +1536,21 @@ function HomePage() {
           </div>
         </div>
 
+        <ul className="hero-floats" aria-label="O Núcleo em números">
+          <li className="hero-float">
+            <strong>51.833</strong>
+            <span>exames de telecardio</span>
+          </li>
+          <li className="hero-float">
+            <strong>20</strong>
+            <span>municípios ativos no Amazonas</span>
+          </li>
+          <li className="hero-float">
+            <strong>3</strong>
+            <span>serviços de telediagnóstico</span>
+          </li>
+        </ul>
+
         <div className="container hero-dots" role="tablist" aria-label="Escolher destaque">
           {heroSlides.map((item, index) => (
             <button
@@ -1762,6 +1779,81 @@ function HomePage() {
       </section>
 
     </>
+  )
+}
+
+/**
+ * Rola até o topo com animação própria. O `scroll-behavior: smooth` nativo é interrompido
+ * em páginas longas com animações, e por isso o botão não chegava ao topo.
+ */
+function scrollToTop(duration: number) {
+  const start = window.scrollY
+  if (start <= 0) return
+
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  if (reduced) {
+    window.scrollTo({ top: 0, behavior: 'instant' })
+    return
+  }
+
+  const begin = performance.now()
+  let stopped = false
+  const stop = () => {
+    stopped = true
+  }
+  window.addEventListener('wheel', stop, { once: true, passive: true })
+  window.addEventListener('touchstart', stop, { once: true, passive: true })
+
+  const step = (now: number) => {
+    if (stopped) return
+    const t = Math.min((now - begin) / duration, 1)
+    const eased = 1 - Math.pow(1 - t, 3)
+    window.scrollTo({ top: start * (1 - eased), behavior: 'instant' })
+    if (t < 1) window.requestAnimationFrame(step)
+    else window.scrollTo({ top: 0, behavior: 'instant' })
+  }
+  window.requestAnimationFrame(step)
+}
+
+/** Botão que leva de volta ao topo; aparece quando o visitante chega perto do fim da página. */
+function BackToTop() {
+  const [visible, setVisible] = useState(false)
+  const [launching, setLaunching] = useState(false)
+
+  useEffect(() => {
+    const update = () => {
+      const { scrollY, innerHeight } = window
+      const total = document.documentElement.scrollHeight
+      setVisible(scrollY > 400 && scrollY + innerHeight >= total - 320)
+    }
+    update()
+    window.addEventListener('scroll', update, { passive: true })
+    window.addEventListener('resize', update)
+    return () => {
+      window.removeEventListener('scroll', update)
+      window.removeEventListener('resize', update)
+    }
+  }, [])
+
+  return (
+    <button
+      type="button"
+      className={`back-to-top${visible ? ' is-visible' : ''}${launching ? ' is-launching' : ''}`}
+      aria-label="Voltar ao topo"
+      tabIndex={visible ? 0 : -1}
+      onClick={() => {
+        setLaunching(true)
+        scrollToTop(900)
+        window.setTimeout(() => setLaunching(false), 900)
+      }}
+    >
+      <span className="back-to-top-pulse" aria-hidden="true" />
+      <svg className="back-to-top-icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M3 13h3.5l2-5 3 9 2.5-7 1.5 3H21" className="back-to-top-ecg" />
+        <path d="M12 8V3M9.5 5.5L12 3l2.5 2.5" />
+      </svg>
+      <span className="back-to-top-label">Voltar ao topo</span>
+    </button>
   )
 }
 
@@ -2113,6 +2205,8 @@ function App() {
           <span>Desenvolvido com tecnologia para a saúde</span>
         </div>
       </footer>
+
+      <BackToTop />
     </div>
   )
 }
