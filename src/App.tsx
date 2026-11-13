@@ -339,7 +339,7 @@ const contactInfo: {
   hours?: string
   mapEmbedUrl?: string
 } = {
-  email: '',
+  email: 'nucleodigital@telessaudefunati.com',
   phone: '',
   address: '',
 }
@@ -420,14 +420,12 @@ const teamGroups = [
   },
 ]
 
-// TODO: DEMONSTRAÇÃO. Substituir pelos números reais do Núcleo antes de publicar.
-// "Teleconsultorias" é um valor fictício. Os demais vêm dos painéis (municípios ativos na
-// PNTD, profissionais capacitados e exames de telecardio + teleoftalmo).
+// TODO: substituir pelos números reais do Núcleo antes de publicar.
 const stats = [
-  { value: '2.350', label: 'teleconsultorias realizadas' },
-  { value: '20', label: 'municípios atendidos' },
-  { value: '384', label: 'profissionais cadastrados' },
-  { value: '53.551', label: 'exames laudados à distância' },
+  { value: '—', label: 'teleconsultorias realizadas' },
+  { value: '—', label: 'municípios atendidos' },
+  { value: '—', label: 'profissionais cadastrados' },
+  { value: '—', label: 'exames laudados à distância' },
 ]
 
 type Project = { area: string; title: string; text: string }
