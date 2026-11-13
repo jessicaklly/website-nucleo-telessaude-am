@@ -1439,6 +1439,84 @@ function PublicationsPage() {
   )
 }
 
+/** Carrossel com os serviços do Núcleo: setas, rolagem por toque e avanço automático. */
+function ServicesCarousel() {
+  const track = useRef<HTMLDivElement>(null)
+  const paused = useRef(false)
+
+  const move = useCallback((direction: 1 | -1) => {
+    const el = track.current
+    if (!el) return
+    const card = el.querySelector<HTMLElement>('.svc-card')
+    const step = card ? card.offsetWidth + 20 : el.clientWidth
+    const end = el.scrollLeft + el.clientWidth >= el.scrollWidth - 4
+    if (direction === 1 && end) el.scrollTo({ left: 0, behavior: 'smooth' })
+    else if (direction === -1 && el.scrollLeft <= 4) el.scrollTo({ left: el.scrollWidth, behavior: 'smooth' })
+    else el.scrollBy({ left: direction * step, behavior: 'smooth' })
+  }, [])
+
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined
+    const timer = window.setInterval(() => {
+      if (!paused.current) move(1)
+    }, 4500)
+    return () => window.clearInterval(timer)
+  }, [move])
+
+  return (
+    <section id="servicos-carrossel" className="section svc-section">
+      <div className="container">
+        <div className="section-heading center">
+          <span className="eyebrow">Serviços</span>
+          <h2>Serviços disponíveis para a rede de saúde.</h2>
+        </div>
+
+        <div
+          className="svc-carousel"
+          role="region"
+          aria-roledescription="carrossel"
+          aria-label="Serviços do Núcleo"
+          onMouseEnter={() => (paused.current = true)}
+          onMouseLeave={() => (paused.current = false)}
+          onFocus={() => (paused.current = true)}
+          onBlur={() => (paused.current = false)}
+        >
+          <button type="button" className="carousel-arrow carousel-prev" aria-label="Serviço anterior" onClick={() => move(-1)}>
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M15 5l-7 7 7 7" />
+            </svg>
+          </button>
+
+          <div className="svc-track" ref={track}>
+            {services.map((service) => (
+              <a key={service.slug} className="svc-card" href={`#/servicos/${service.slug}`}>
+                <span className="svc-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                    {service.icon.map((d) => (
+                      <path key={d} d={d} />
+                    ))}
+                  </svg>
+                </span>
+                <h3>{service.title}</h3>
+                <p>{service.text}</p>
+                <span className="svc-more">
+                  Saiba mais <span aria-hidden="true">→</span>
+                </span>
+              </a>
+            ))}
+          </div>
+
+          <button type="button" className="carousel-arrow carousel-next" aria-label="Próximo serviço" onClick={() => move(1)}>
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </section>
+  )
+}
+
 function HomePage() {
   const [slide, setSlide] = useState(0)
   const partnersTrack = useRef<HTMLDivElement>(null)
@@ -1608,6 +1686,8 @@ function HomePage() {
           <MunicipalMap />
         </div>
       </section>
+
+      <ServicesCarousel />
 
       <section id="publicacoes" className="section section-alt screen">
         <div className="container">
