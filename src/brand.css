@@ -15,6 +15,15 @@
   background: var(--ivory);
 }
 
+/* Sem altura de tela inteira: o conteúdo define a altura da página */
+.screen-first {
+  min-height: 0;
+}
+
+.screen-first > section:not(.page-hero) {
+  flex: 0 0 auto;
+}
+
 /* Margem lateral confortável em telas largas */
 .container {
   width: min(78rem, calc(100% - 3rem));
@@ -22,10 +31,6 @@
 
 .topbar-inner {
   width: min(82rem, 100%);
-}
-
-.eyebrow {
-  display: none; /* sem rótulos acima dos títulos */
 }
 
 section.screen {
@@ -328,26 +333,6 @@ section.screen.screen-end {
   background: var(--deep);
 }
 
-.hero-floats {
-  display: none;
-}
-
-/* Faixa de redes sociais */
-.trust-bar {
-  background: var(--ivory);
-  border: 0;
-  box-shadow: none;
-}
-
-.trust-inner p {
-  max-width: none;
-  font-size: 0.95rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  text-transform: none;
-  color: var(--deep);
-}
-
 /* ---------- Cabeçalho das páginas internas ---------- */
 .page .page-hero {
   padding: 8.5rem 0 clamp(5rem, 9vw, 7rem);
@@ -401,6 +386,36 @@ section.screen.screen-end {
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   font-size: 0.95rem;
+}
+
+/* Equipe: grupos como cartões simples, sem faixa lateral */
+.page .team-group,
+.team-group {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-left: 1px solid var(--border);
+  border-radius: 1.5rem;
+}
+
+.page .team-group:hover {
+  transform: none;
+  box-shadow: none;
+  border-color: var(--leaf);
+}
+
+.team-group-title {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.team-intro p {
+  font-size: 1.125rem;
+}
+
+/* sem faixa lateral ao lado de blocos de texto */
+.page .about-copy {
+  padding-left: 0;
+  border-left: 0;
 }
 
 /* ---------- Cartões: uma elevação só (borda), cantos amplos ---------- */
@@ -549,26 +564,16 @@ section.screen.screen-end {
   color: var(--ink);
 }
 
-/* ---------- Mascote (tracajá): folha de variações usada como sprite ---------- */
+/* ---------- Mascote (tracajá): uma imagem por pose, recortada da folha de variações ---------- */
 .mascot {
-  --w: 300;
-  --h: 340;
-  --x: 25;
-  --y: 105;
   display: block;
   width: var(--mascot-size, 8rem);
-  aspect-ratio: var(--w) / var(--h);
-  background: url('./assets/tracaja.png') no-repeat;
-  background-size: calc(1536 / var(--w) * 100%) auto;
-  background-position:
-    calc(var(--x) / (1536 - var(--w)) * 100%)
-    calc(var(--y) / (1024 - var(--h)) * 100%);
-  mix-blend-mode: multiply;
+  aspect-ratio: 300 / 340;
+  background: no-repeat center / contain;
 }
 
-.mascot-acolhedor { --x: 25; --y: 105; --w: 300; --h: 340; }
-.mascot-explicando { --x: 630; --y: 105; --w: 290; --h: 340; }
-.mascot-ouvindo { --x: 1225; --y: 105; --w: 290; --h: 340; }
+.mascot-acolhedor { background-image: url('./assets/tracaja-acolhedor.png'); }
+.mascot-explicando { background-image: url('./assets/tracaja-explicando.png'); }
 
 .mascot-note {
   display: flex;
@@ -582,7 +587,6 @@ section.screen.screen-end {
   background: var(--ivory);
   color: var(--ink);
   text-align: left;
-  isolation: isolate;
 }
 
 .mascot-note p {

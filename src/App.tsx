@@ -866,7 +866,6 @@ function TeamPage() {
       <section className="section team-section">
         <div className="container">
           <div className="team-intro">
-            <span className="team-kicker">Equipe</span>
             <h2 className="about-heading">Conheça nossa equipe</h2>
             {/* TODO: confirmar este texto de apresentação com o Núcleo. */}
             <p>
