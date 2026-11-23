@@ -33,12 +33,12 @@ Telessaúde com raízes no Amazonas e presença humana: "Tecnologia com presenç
 
 ## Brand Commitments
 
-Fonte da verdade: Manual de Identidade Visual do Núcleo de Telessaúde FUnATI, versão 2.0 (arquivo na pasta Downloads do responsável). Obrigatório para o site: paleta de seis cores, DM Sans, grafismos de curvas, fotos em recorte de folha, coral só em detalhes, assinatura de uma cor em verde profundo sobre fundo claro, logo branca só sobre fundo escuro e liso.
+Fonte da verdade: Manual de Identidade Visual do Núcleo de Telessaúde FUnATI, versão 2.0 (arquivo na pasta Downloads do responsável). Obrigatório para o site: paleta de seis cores, DM Sans, grafismos de curvas, fotos em recorte de folha, coral só em detalhes, assinatura colorida sobre fundo claro e liso, logo branca só sobre fundo escuro e liso.
 
 ## Evidence on Hand
 
-- Logo branca: `src/assets/logo-telessaude-funati-branca.png`. A logo colorida oficial ainda não está no projeto (as `logo-*.png` coloridas são da identidade antiga).
-- Variações do tracajá: folha de PNG única, sem vetor.
+- Logos oficiais (nov/2026): assinatura horizontal colorida em `src/assets/logo-telessaude-funati.png` (fundos claros) e versão branca em `src/assets/logo-telessaude-funati-branca.png` (fundos escuros). Ícones de aba e de celular vêm do símbolo colorido. Existem também versões verticais, com nome completo, cinza e preto, fora do projeto. As outras `logo-*.png` em `src/assets` são da identidade antiga.
+- Tracajá: duas poses recortadas de uma folha de PNG (`src/assets/tracaja-*.png`), sem vetor.
 - Dados reais do painel: ausentes. Os valores `—` são honestos até haver fonte.
 
 ## Product Principles

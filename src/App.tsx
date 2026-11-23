@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
-import type { CSSProperties, FormEvent, KeyboardEvent, ReactNode } from 'react'
+import type { FormEvent, KeyboardEvent, ReactNode } from 'react'
 import logoBranca from './assets/logo-telessaude-funati-branca.png'
+import logoColorida from './assets/logo-telessaude-funati.png'
 import contatoFoto from './assets/contato.jpg' // Foto: Mikhail Nilov (Pexels, licença gratuita)
 import teleconsultoriaFoto from './assets/teleconsultoria.jpg'
 import teleatendimentoFoto from './assets/teleatendimento.jpg' // Foto: Tima Miroshnichenko (Pexels, licença gratuita)
@@ -421,12 +422,19 @@ const teamGroups = [
   },
 ]
 
+/**
+ * Dados provisórios para mostrar o layout preenchido.
+ * Quando houver os números, projetos e publicações oficiais, troque as listas abaixo e
+ * ponha `false` aqui: o site volta a mostrar "—" e os avisos de "em breve".
+ */
+const DADOS_PROVISORIOS = true
+
 // TODO: substituir pelos números reais do Núcleo antes de publicar.
 const stats = [
-  { value: '—', label: 'teleconsultorias realizadas' },
-  { value: '—', label: 'municípios atendidos' },
-  { value: '—', label: 'profissionais cadastrados' },
-  { value: '—', label: 'exames laudados à distância' },
+  { value: DADOS_PROVISORIOS ? '1.248' : '—', label: 'teleconsultorias realizadas' },
+  { value: DADOS_PROVISORIOS ? '22' : '—', label: 'municípios atendidos' },
+  { value: DADOS_PROVISORIOS ? '386' : '—', label: 'profissionais cadastrados' },
+  { value: DADOS_PROVISORIOS ? '51.833' : '—', label: 'exames laudados à distância' },
 ]
 
 type Project = { area: string; title: string; text: string }
@@ -434,14 +442,49 @@ type Project = { area: string; title: string; text: string }
 // TODO: cadastrar aqui os projetos do Núcleo. Enquanto a lista estiver vazia, a página
 // "Projetos" mostra um aviso de "em breve". Exemplo de item:
 // { area: 'Telediagnóstico', title: 'Nome do projeto', text: 'Resumo em uma ou duas frases.' }
-const projects: Project[] = []
+const projects: Project[] = DADOS_PROVISORIOS
+  ? [
+      {
+        area: 'Telediagnóstico',
+        title: 'Laudos à distância na atenção primária',
+        text: 'Acompanha o tempo entre o exame e o laudo nas unidades de saúde atendidas.',
+      },
+      {
+        area: 'Tele-educação',
+        title: 'Cuidado da pessoa idosa na rede',
+        text: 'Ciclo de webconferências para equipes que acompanham pessoas idosas.',
+      },
+      {
+        area: 'Teleconsultoria',
+        title: 'Apoio às equipes de municípios do interior',
+        text: 'Reúne dúvidas frequentes e respostas de especialistas para uso das equipes.',
+      },
+    ]
+  : []
 
 // TODO: substituir pelas publicações reais do Núcleo.
-const publications = [
-  { type: 'Boletim', title: 'Boletim informativo do Núcleo', year: 'Em breve' },
-  { type: 'Relatório', title: 'Relatório de atividades', year: 'Em breve' },
-  { type: 'Artigo', title: 'Produção científica e técnica', year: 'Em breve' },
-]
+const publications = DADOS_PROVISORIOS
+  ? [
+      { type: 'Boletim', title: 'Boletim informativo do Núcleo, nº 1', year: 'Exemplo · 2026' },
+      { type: 'Relatório', title: 'Relatório de atividades do 1º semestre', year: 'Exemplo · 2026' },
+      { type: 'Artigo', title: 'Telediagnóstico na atenção primária do Amazonas', year: 'Exemplo · 2026' },
+    ]
+  : [
+      { type: 'Boletim', title: 'Boletim informativo do Núcleo', year: 'Em breve' },
+      { type: 'Relatório', title: 'Relatório de atividades', year: 'Em breve' },
+      { type: 'Artigo', title: 'Produção científica e técnica', year: 'Em breve' },
+    ]
+
+/** Aviso exibido enquanto os dados são de exemplo. */
+function ProvisionalNote() {
+  if (!DADOS_PROVISORIOS) return null
+  return (
+    <p className="provisional-note" role="note">
+      <strong>Conteúdo provisório.</strong> Os itens acima são exemplos para mostrar o layout e
+      serão trocados pelos oficiais.
+    </p>
+  )
+}
 
 // TODO: substituir por notícias e agenda reais (as datas abaixo são exemplos).
 const news = [
@@ -1428,6 +1471,7 @@ function ProjectsPage() {
               <p className="info-meta">{project.text}</p>
             </article>
           ))}
+          <ProvisionalNote />
         </div>
       ) : (
         <div className="empty-state">
@@ -1452,7 +1496,9 @@ function PublicationsPage() {
       heading="Conhecimento produzido e compartilhado com a rede"
       paragraphs={[
         'Reunimos aqui os boletins informativos, os relatórios de atividades e a produção científica e técnica do Núcleo, para que profissionais, gestores e pesquisadores acompanhem o que construímos.',
-        'Os materiais estão sendo organizados e serão disponibilizados em breve.',
+        DADOS_PROVISORIOS
+          ? 'Os títulos abaixo são exemplos enquanto os materiais oficiais são organizados.'
+          : 'Os materiais estão sendo organizados e serão disponibilizados em breve.',
       ]}
       actions={[
         { label: 'Ver projetos', href: '#/projetos', primary: true },
@@ -1467,6 +1513,7 @@ function PublicationsPage() {
             <span className="info-meta">{item.year}</span>
           </article>
         ))}
+        <ProvisionalNote />
       </div>
     </ResearchPage>
   )
@@ -1702,8 +1749,10 @@ function HomePage() {
           <div className="mascot-note" role="note">
             <span className="mascot mascot-explicando" aria-hidden="true" />
             <p>
-              <strong>Números em atualização.</strong>
-              Eles aparecem aqui quando forem confirmados pela equipe do Núcleo.
+              <strong>{DADOS_PROVISORIOS ? 'Valores ilustrativos.' : 'Números em atualização.'}</strong>
+              {DADOS_PROVISORIOS
+                ? 'Estes números são provisórios e serão trocados pelos dados oficiais do Núcleo.'
+                : 'Eles aparecem aqui quando forem confirmados pela equipe do Núcleo.'}
             </p>
           </div>
 
@@ -2109,12 +2158,8 @@ function App() {
         }`}
       >
         <div className="topbar-inner">
-          <a className="brand" href="#inicio" aria-label="Núcleo de Telessaúde FUnATI, página inicial">
-            <span
-              className="brand-logo"
-              aria-hidden="true"
-              style={{ '--logo': `url(${logoBranca})` } as CSSProperties}
-            />
+          <a className="brand" href="#inicio">
+            <img className="brand-logo" src={logoColorida} alt="Núcleo de Telessaúde FUnATI" />
           </a>
 
           <button

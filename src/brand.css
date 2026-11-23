@@ -85,10 +85,7 @@ section.screen.screen-end {
 .brand-logo {
   display: block;
   height: 3.6rem;
-  aspect-ratio: 4132 / 1463;
-  background: var(--deep);
-  -webkit-mask: var(--logo) left center / contain no-repeat;
-  mask: var(--logo) left center / contain no-repeat;
+  width: auto;
   flex-shrink: 0;
 }
 
@@ -574,6 +571,18 @@ section.screen.screen-end {
 
 .mascot-acolhedor { background-image: url('./assets/tracaja-acolhedor.png'); }
 .mascot-explicando { background-image: url('./assets/tracaja-explicando.png'); }
+
+.provisional-note {
+  grid-column: 1 / -1;
+  max-width: none;
+  margin: 0.25rem 0 0;
+  padding: 0.9rem 1.25rem;
+  border-radius: 1rem;
+  background: var(--lime);
+  color: var(--ink);
+  font-size: 1rem;
+  line-height: 1.5;
+}
 
 .mascot-note {
   display: flex;
