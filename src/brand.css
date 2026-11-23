@@ -1,0 +1,654 @@
+/*
+ * Camada de identidade visual — Manual de Identidade Visual v2.0 (Núcleo de Telessaúde FUnATI).
+ * Carregada depois de App.css: onde há conflito, vale este arquivo.
+ *
+ * Regras do manual aplicadas aqui:
+ *  - Superfícies claras em maioria; verde profundo como exceção (painel, rodapé, cabeçalho das páginas).
+ *  - Curvas amplas (lima + verde folha + verde profundo) em bordas e transições.
+ *  - Coral só em pequenos detalhes gráficos, nunca em texto.
+ *  - Corpo de 18 px, botões de 48 px, foco visível, sem peso Light.
+ *  - Fotos em recorte de folha.
+ */
+
+/* ---------- Base ---------- */
+.page-shell {
+  background: var(--ivory);
+}
+
+/* Margem lateral confortável em telas largas */
+.container {
+  width: min(78rem, calc(100% - 3rem));
+}
+
+.topbar-inner {
+  width: min(82rem, 100%);
+}
+
+.eyebrow {
+  display: none; /* sem rótulos acima dos títulos */
+}
+
+section.screen {
+  min-height: 0;
+  display: block;
+}
+
+section.screen.screen-end {
+  min-height: 0;
+}
+
+.section {
+  padding: clamp(3.5rem, 8vw, 6rem) 0;
+}
+
+.section-alt,
+.page .section-alt {
+  background: var(--brand-tint);
+}
+
+.page .section-alt::before {
+  display: none;
+}
+
+.section-heading h2,
+.page .section-heading h2,
+.about-heading {
+  color: var(--ink);
+  background: none;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+  text-wrap: balance;
+}
+
+.section-heading h2 {
+  font-size: clamp(2rem, 4.2vw, 3rem);
+}
+
+/* ---------- Cabeçalho (pílula clara, como no site de referência do manual) ---------- */
+.topbar-inner,
+.topbar.is-scrolled .topbar-inner {
+  background: rgba(255, 255, 255, 0.97);
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 26px rgba(var(--shadow-rgb), 0.12);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.brand-logo {
+  display: block;
+  height: 3.6rem;
+  aspect-ratio: 4132 / 1463;
+  background: var(--deep);
+  -webkit-mask: var(--logo) left center / contain no-repeat;
+  mask: var(--logo) left center / contain no-repeat;
+  flex-shrink: 0;
+}
+
+.main-nav {
+  color: var(--ink);
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.nav-item > a {
+  color: var(--ink);
+  min-height: 3rem;
+}
+
+.nav-item > a:hover {
+  color: var(--deep);
+}
+
+.nav-indicator {
+  background: var(--lime);
+  box-shadow: none;
+}
+
+.nav-item.is-active > a {
+  color: var(--deep);
+  font-weight: 700;
+}
+
+.nav-toggle {
+  background: var(--lime);
+}
+
+.nav-toggle span {
+  background: var(--deep);
+}
+
+.submenu {
+  background: #fff;
+  box-shadow: 0 18px 40px rgba(var(--shadow-rgb), 0.16);
+}
+
+.submenu a:hover {
+  background: var(--ivory);
+}
+
+.sub-icon {
+  background: var(--lime);
+  color: var(--deep);
+}
+
+.submenu a:hover .sub-icon {
+  background: var(--deep);
+  color: var(--lime);
+}
+
+.sub-text small {
+  font-size: 0.85rem;
+}
+
+/* ---------- Botões (alvo mínimo de 48 px) ---------- */
+.btn {
+  min-height: 3rem;
+  padding: 0.8rem 1.6rem;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.2;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease,
+    transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.btn-primary {
+  background: var(--deep);
+  color: #fff;
+  box-shadow: none;
+}
+
+.btn-primary:hover {
+  background: var(--leaf);
+  color: var(--ink);
+}
+
+.btn-secondary,
+.btn-outline {
+  border: 2px solid var(--deep);
+  background: transparent;
+  color: var(--deep);
+}
+
+.btn-secondary:hover,
+.btn-outline:hover {
+  background: var(--lime);
+  border-color: var(--deep);
+}
+
+/* ---------- Ondas (grafismo do manual) ---------- */
+.waves {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  width: 100%;
+  height: clamp(3rem, 7vw, 6rem);
+  pointer-events: none;
+}
+
+.waves .w-lime { fill: var(--lime); }
+.waves .w-leaf { fill: var(--leaf); }
+.waves .w-deep { fill: var(--deep); }
+.waves .w-ivory { fill: var(--ivory); }
+
+/* ---------- Hero da página inicial ---------- */
+.hero {
+  min-height: 0;
+  display: block;
+  padding: 8.5rem 0 0;
+  color: var(--ink);
+  background: var(--ivory);
+  overflow: hidden;
+}
+
+.hero-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  align-items: center;
+  gap: clamp(2rem, 5vw, 5rem);
+}
+
+.hero-slide {
+  animation: hero-fade 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.hero h1 {
+  max-width: 14ch;
+  font-size: clamp(2.5rem, 5.6vw, 4.5rem);
+  font-weight: 700;
+  line-height: 1.04;
+  letter-spacing: -0.03em;
+  color: var(--deep);
+  text-wrap: balance;
+}
+
+.hero h1 .hero-mark {
+  display: inline;
+  background: linear-gradient(var(--coral), var(--coral)) left 96% / 100% 0.14em no-repeat;
+  padding-bottom: 0.04em;
+}
+
+.hero-subtitle {
+  margin-top: 1.5rem;
+  max-width: 34rem;
+  font-size: 1.25rem;
+  line-height: 1.6;
+  color: var(--body);
+}
+
+.hero-actions {
+  margin-top: 2rem;
+}
+
+.hero-photo {
+  position: relative;
+  margin: 0;
+  justify-self: end;
+  width: min(100%, 34rem);
+}
+
+.hero-photo img {
+  width: 100%;
+  aspect-ratio: 5 / 4.4;
+  object-fit: cover;
+  /* Recorte em forma de folha, como nas fotos do manual. */
+  border-radius: 9rem 1.5rem 9rem 1.5rem;
+}
+
+.hero-tag {
+  position: absolute;
+  left: -1.25rem;
+  bottom: 1.5rem;
+  padding: 0.55rem 1.1rem;
+  border-radius: 0.9rem 0.9rem 0.9rem 0.25rem;
+  background: var(--coral);
+  color: var(--ink);
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.hero-services {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.8rem;
+  margin: clamp(2.5rem, 6vw, 4rem) auto 0;
+  padding: 0 0 clamp(4.5rem, 9vw, 7.5rem);
+}
+
+.hero-services a {
+  display: flex;
+  align-items: center;
+  min-height: 3.5rem;
+  padding: 0.7rem 1.4rem;
+  border-radius: 1.1rem;
+  background: var(--lime);
+  color: var(--ink);
+  font-weight: 700;
+  transition: background-color 0.2s ease, transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.hero-services a:hover {
+  background: #cfeb92;
+  transform: translateY(-2px);
+}
+
+.hero-dots {
+  position: static;
+  left: auto;
+  bottom: auto;
+  transform: none;
+  margin-top: 1.75rem;
+  padding: 0;
+  width: auto;
+}
+
+.hero-dot {
+  width: 0.8rem;
+  height: 0.8rem;
+  background: rgba(var(--deep-rgb), 0.28);
+  /* área de toque maior sem aumentar o ponto */
+  box-shadow: 0 0 0 0.35rem transparent;
+}
+
+.hero-dot:hover {
+  background: rgba(var(--deep-rgb), 0.55);
+}
+
+.hero-dot.is-active {
+  width: 2.5rem;
+  background: var(--deep);
+}
+
+.hero-floats {
+  display: none;
+}
+
+/* Faixa de redes sociais */
+.trust-bar {
+  background: var(--ivory);
+  border: 0;
+  box-shadow: none;
+}
+
+.trust-inner p {
+  max-width: none;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: var(--deep);
+}
+
+/* ---------- Cabeçalho das páginas internas ---------- */
+.page .page-hero {
+  padding: 8.5rem 0 clamp(5rem, 9vw, 7rem);
+  background: var(--deep);
+  animation: none;
+  background-size: auto;
+  isolation: isolate;
+}
+
+.page .page-hero::before {
+  display: none;
+}
+
+.page .page-hero::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 -1px 0;
+  width: auto;
+  height: clamp(3rem, 7vw, 5.5rem);
+  transform: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  opacity: 1;
+  animation: none;
+  z-index: -1;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 120' preserveAspectRatio='none'%3E%3Cpath fill='%23dff3af' d='M0 62C260 8 640 6 940 54s380 36 500-18v84H0z'/%3E%3Cpath fill='%2350af31' d='M0 84C300 36 700 36 1000 80s320 28 440-10v50H0z'/%3E%3Cpath fill='%23f7f8f1' d='M0 106C340 76 780 78 1080 104s250 8 360-8v24H0z'/%3E%3C/svg%3E") bottom / 100% 100% no-repeat;
+}
+
+.page .page-hero h1 {
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  padding-left: 0;
+  text-wrap: balance;
+}
+
+.page .page-hero h1::before {
+  display: none;
+}
+
+.page .page-hero p {
+  padding-left: 0;
+  color: var(--on-dark-muted);
+  font-size: 1.2rem;
+}
+
+.page .breadcrumb {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  font-size: 0.95rem;
+}
+
+/* ---------- Cartões: uma elevação só (borda), cantos amplos ---------- */
+.info-card,
+.detail-card,
+.stat-card,
+.page .info-card,
+.page .detail-card,
+.page .stat-card,
+.svc-card,
+.empty-state {
+  border-radius: 1.5rem;
+  border: 1px solid var(--border);
+  background: #fff;
+  box-shadow: none;
+}
+
+/* sem barras, círculos nem numeração decorativa nos cartões */
+.info-card::before,
+.info-card::after,
+.detail-card::before,
+.stat-card::before,
+.page .info-card::before,
+.page .info-card::after,
+.page .detail-card::before,
+.page .stat-card::before,
+#parcerias .info-card::before,
+#publicacoes .info-card::before,
+#noticias .info-card::before {
+  display: none;
+  content: none;
+}
+
+.page .info-card:hover,
+.page .detail-card:hover,
+.page .stat-card:hover,
+.svc-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--leaf);
+  box-shadow: none;
+}
+
+.info-tag {
+  background: var(--lime);
+  color: var(--ink);
+  border: 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.info-meta {
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.svc-section {
+  background: var(--ivory);
+}
+
+.svc-section::before {
+  display: none;
+}
+
+.svc-card {
+  background: #fff;
+}
+
+.svc-icon {
+  background: var(--lime);
+  color: var(--deep);
+}
+
+.svc-more {
+  color: var(--deep);
+  text-decoration: underline;
+  text-decoration-color: var(--leaf);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.25em;
+}
+
+.svc-section,
+#noticias,
+#parcerias {
+  background: var(--ivory);
+}
+
+#publicacoes,
+#depoimentos {
+  background: var(--brand-tint);
+}
+
+/* ---------- Painel de dados (único bloco escuro do corpo da página inicial) ---------- */
+#painel {
+  position: relative;
+  background: var(--deep);
+  color: var(--on-dark);
+  padding-bottom: clamp(5rem, 9vw, 7rem);
+}
+
+#painel .section-heading h2 {
+  color: #fff;
+}
+
+#painel .waves {
+  height: clamp(3rem, 7vw, 5.5rem);
+}
+
+/* ---------- Rodapé com onda na borda superior ---------- */
+.footer {
+  position: relative;
+  margin-top: clamp(3rem, 6vw, 5rem);
+  padding-top: 4.5rem;
+  border-top: 0;
+}
+
+.footer::before {
+  content: '';
+  position: absolute;
+  inset: auto 0 calc(100% - 1px) 0;
+  height: clamp(2.5rem, 6vw, 4.5rem);
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 120' preserveAspectRatio='none'%3E%3Cpath fill='%23dff3af' d='M0 40C300 90 700 100 1000 62s320-36 440 4v54H0z'/%3E%3Cpath fill='%2350af31' d='M0 66C320 104 740 112 1040 82s280-22 400 0v38H0z'/%3E%3Cpath fill='%23123b30' d='M0 92c340 24 760 28 1080 6s250-12 360-4v26H0z'/%3E%3C/svg%3E") bottom / 100% 100% no-repeat;
+  pointer-events: none;
+}
+
+.footer-links h3,
+.footer-contact h3 {
+  color: var(--lime);
+  font-size: 1.05rem;
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
+
+.footer-bottom {
+  font-size: 0.95rem;
+  color: var(--footer-muted);
+}
+
+/* ---------- Voltar ao topo ---------- */
+.back-to-top,
+.back-to-top:hover {
+  color: #fff;
+}
+
+.back-to-top:hover {
+  background: var(--leaf);
+  color: var(--ink);
+}
+
+/* ---------- Mascote (tracajá): folha de variações usada como sprite ---------- */
+.mascot {
+  --w: 300;
+  --h: 340;
+  --x: 25;
+  --y: 105;
+  display: block;
+  width: var(--mascot-size, 8rem);
+  aspect-ratio: var(--w) / var(--h);
+  background: url('./assets/tracaja.png') no-repeat;
+  background-size: calc(1536 / var(--w) * 100%) auto;
+  background-position:
+    calc(var(--x) / (1536 - var(--w)) * 100%)
+    calc(var(--y) / (1024 - var(--h)) * 100%);
+  mix-blend-mode: multiply;
+}
+
+.mascot-acolhedor { --x: 25; --y: 105; --w: 300; --h: 340; }
+.mascot-explicando { --x: 630; --y: 105; --w: 290; --h: 340; }
+.mascot-ouvindo { --x: 1225; --y: 105; --w: 290; --h: 340; }
+
+.mascot-note {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  max-width: 42rem;
+  margin: 2.5rem auto 0;
+  padding: 1rem 1.5rem 1rem 1rem;
+  border-radius: 1.5rem;
+  background: var(--ivory);
+  color: var(--ink);
+  text-align: left;
+  isolation: isolate;
+}
+
+.mascot-note p {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.5;
+}
+
+.mascot-note strong {
+  display: block;
+  font-size: 1.15rem;
+}
+
+.empty-state .mascot {
+  --mascot-size: 7rem;
+}
+
+/* ---------- Responsivo ---------- */
+@media (max-width: 1100px) {
+  .brand-logo {
+    height: 3rem;
+  }
+
+  .hero {
+    padding-top: 7rem;
+  }
+
+  .hero-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-photo {
+    justify-self: start;
+    width: min(100%, 28rem);
+  }
+
+  .hero-services {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+}
+
+@media (max-width: 640px) {
+  .hero-photo img {
+    border-radius: 5rem 1.25rem 5rem 1.25rem;
+  }
+
+  .hero-tag {
+    left: 0.5rem;
+  }
+
+  .hero-services {
+    grid-template-columns: 1fr;
+  }
+
+  .mascot-note {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-slide,
+  .btn,
+  .hero-services a {
+    animation: none;
+    transition: none;
+  }
+}

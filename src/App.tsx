@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
-import type { FormEvent, KeyboardEvent, ReactNode } from 'react'
+import type { CSSProperties, FormEvent, KeyboardEvent, ReactNode } from 'react'
 import logoBranca from './assets/logo-telessaude-funati-branca.png'
 import contatoFoto from './assets/contato.jpg' // Foto: Mikhail Nilov (Pexels, licença gratuita)
 import teleconsultoriaFoto from './assets/teleconsultoria.jpg'
@@ -16,6 +16,7 @@ import logoUfsc from './assets/parceiros/ufsc.png'
 import MunicipalMap from './MunicipalMap'
 import { servicosTele } from './data/servicos'
 import './App.css'
+import './brand.css'
 
 type Service = {
   slug: string
@@ -474,15 +475,48 @@ const formatDate = (iso: string) =>
 type HeroSlide = {
   eyebrow: string
   title: string
+  /** Trecho do título sublinhado em coral (detalhe gráfico do manual). */
+  highlight: string
   text: string
+  image: string
+  imageAlt: string
   primary: { label: string; href: string }
   secondary: { label: string; href: string }
+}
+
+type WaveTone = 'lime' | 'leaf' | 'deep' | 'ivory'
+
+/** Faixas onduladas do manual (grafismo "curvas que dão movimento"): de cima para baixo. */
+function Waves({ bands }: { bands: [WaveTone, WaveTone, WaveTone] }) {
+  return (
+    <svg className="waves" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+      <path className={`w-${bands[0]}`} d="M0 62C260 8 640 6 940 54s380 36 500-18v84H0z" />
+      <path className={`w-${bands[1]}`} d="M0 84C300 36 700 36 1000 80s320 28 440-10v50H0z" />
+      <path className={`w-${bands[2]}`} d="M0 106C340 76 780 78 1080 104s250 8 360-8v24H0z" />
+    </svg>
+  )
+}
+
+/** Título com um trecho sublinhado em coral. */
+function HighlightedTitle({ title, highlight }: { title: string; highlight: string }) {
+  const at = title.indexOf(highlight)
+  if (at < 0) return <>{title}</>
+  return (
+    <>
+      {title.slice(0, at)}
+      <span className="hero-mark">{highlight}</span>
+      {title.slice(at + highlight.length)}
+    </>
+  )
 }
 
 const heroSlides: HeroSlide[] = [
   {
     eyebrow: 'Quem somos',
-    title: 'Núcleo de Saúde Digital da Pessoa Idosa - FUnATI',
+    title: 'Conexões que aproximam o cuidado.',
+    highlight: 'o cuidado.',
+    image: teleatendimentoFoto,
+    imageAlt: 'Pessoa idosa segura um copo d’água diante de um tablet em que uma médica a atende por vídeo.',
     text: 'Iniciativa pioneira da FUnATI, em parceria com o Ministério da Saúde, para ampliar o acesso da população idosa da Amazônia à atenção especializada.',
     primary: { label: 'Conheça nossa história', href: '#/quem-somos' },
     secondary: { label: 'Conheça nossa equipe', href: '#/equipe' },
@@ -490,6 +524,9 @@ const heroSlides: HeroSlide[] = [
   {
     eyebrow: 'Teleconsultoria',
     title: 'Apoio de especialistas à distância',
+    highlight: 'à distância',
+    image: teleconsultoriaFoto,
+    imageAlt: 'Profissional de saúde sorri e acena para o celular durante uma videochamada.',
     text: 'Esclareça dúvidas clínicas e de processo de trabalho com especialistas, ampliando o acesso e reduzindo deslocamentos.',
     primary: { label: 'Conheça a teleconsultoria', href: '#/servicos/teleconsultoria' },
     secondary: { label: 'Fale conosco', href: '#/contato' },
@@ -497,6 +534,9 @@ const heroSlides: HeroSlide[] = [
   {
     eyebrow: 'Telediagnóstico',
     title: 'Exames analisados à distância por especialistas',
+    highlight: 'por especialistas',
+    image: telediagnosticoFoto,
+    imageAlt: 'Médico observa imagens de exame em um monitor.',
     text: 'Laudos e pareceres que agilizam o diagnóstico e aproximam o cuidado especializado das equipes de saúde.',
     primary: { label: 'Conheça o telediagnóstico', href: '#/servicos/telediagnostico' },
     secondary: { label: 'Fale conosco', href: '#/contato' },
@@ -504,6 +544,9 @@ const heroSlides: HeroSlide[] = [
   {
     eyebrow: 'Tele-educação',
     title: 'Aprender em rede, onde você estiver',
+    highlight: 'em rede',
+    image: teleeducacaoFoto,
+    imageAlt: 'Mulher de fones de ouvido sorri e faz anotações enquanto assiste a uma aula no notebook.',
     text: 'Webconferências, cursos e capacitações para a atualização contínua de equipes e gestores.',
     primary: { label: 'Conheça a tele-educação', href: '#/servicos/tele-educacao' },
     secondary: { label: 'Veja as notícias', href: '#/noticias' },
@@ -670,7 +713,6 @@ function AboutPage() {
       <section className="section">
         <div className="container intro-block">
           <div className="section-heading">
-            <span className="eyebrow">Nossa história</span>
             <h2>Núcleo de Saúde Digital da Pessoa Idosa da Região Norte</h2>
           </div>
 
@@ -920,7 +962,6 @@ function ServicePage({ slug }: { slug: string }) {
 
   const heading = (
     <div className="section-heading">
-      <span className="eyebrow">O que é</span>
       <h2>{service.title}</h2>
     </div>
   )
@@ -997,7 +1038,6 @@ function ServicePage({ slug }: { slug: string }) {
         <section className="section screen">
           <div className="container">
             <div className="section-heading">
-              <span className="eyebrow">Serviços</span>
               <h2>O que oferecemos em {service.title}</h2>
             </div>
             <SubserviceExplorer items={service.subservices} />
@@ -1042,7 +1082,6 @@ function ServicePage({ slug }: { slug: string }) {
       <section className="section screen screen-end">
         <div className="container">
           <div className="section-heading">
-            <span className="eyebrow">Veja também</span>
             <h2>Outros serviços</h2>
           </div>
 
@@ -1066,7 +1105,6 @@ type ResearchPageProps = {
   text: string
   /** Nome da seção no caminho de navegação; o padrão é "Pesquisa". */
   section?: string | null
-  eyebrow: string
   heading: string
   paragraphs: string[]
   actions: ResearchAction[]
@@ -1079,7 +1117,6 @@ function ResearchPage({
   title,
   text,
   section = 'Pesquisa',
-  eyebrow,
   heading,
   paragraphs,
   actions,
@@ -1093,7 +1130,6 @@ function ResearchPage({
         <section className="section">
           <div className="container intro-block">
             <div className="section-heading">
-              <span className="eyebrow">{eyebrow}</span>
               <h2>{heading}</h2>
             </div>
 
@@ -1350,7 +1386,6 @@ function NewsPage() {
       title="Notícias"
       text="Novidades, eventos e o cronograma de tele-educação do Núcleo."
       section={null}
-      eyebrow="Fique por dentro"
       heading="Acompanhe o que acontece no Núcleo"
       paragraphs={[
         'Aqui você encontra as novidades dos serviços de telessaúde, as webconferências e as demais atividades de tele-educação, com a data de cada uma.',
@@ -1375,7 +1410,6 @@ function ProjectsPage() {
     <ResearchPage
       title="Projetos"
       text="Pesquisa, desenvolvimento e inovação em saúde digital."
-      eyebrow="PD&I"
       heading="Pesquisa e inovação a serviço do SUS"
       paragraphs={[
         'O Núcleo desenvolve e apoia iniciativas de pesquisa, desenvolvimento e inovação em saúde digital, com o propósito de apoiar soluções tecnológicas inovadoras para o SUS na Região Norte.',
@@ -1398,6 +1432,7 @@ function ProjectsPage() {
         </div>
       ) : (
         <div className="empty-state">
+          <span className="mascot mascot-acolhedor" aria-hidden="true" />
           <span className="info-tag">Em breve</span>
           <h3>Os projetos do Núcleo serão apresentados aqui</h3>
           <p>
@@ -1415,7 +1450,6 @@ function PublicationsPage() {
     <ResearchPage
       title="Publicações"
       text="Materiais, boletins e produção científica do Núcleo."
-      eyebrow="Pesquisa"
       heading="Conhecimento produzido e compartilhado com a rede"
       paragraphs={[
         'Reunimos aqui os boletins informativos, os relatórios de atividades e a produção científica e técnica do Núcleo, para que profissionais, gestores e pesquisadores acompanhem o que construímos.',
@@ -1467,7 +1501,6 @@ function ServicesCarousel() {
     <section id="servicos-carrossel" className="section svc-section">
       <div className="container">
         <div className="section-heading center">
-          <span className="eyebrow">Serviços</span>
           <h2>Serviços disponíveis para a rede de saúde.</h2>
         </div>
 
@@ -1519,6 +1552,7 @@ function ServicesCarousel() {
 
 function HomePage() {
   const [slide, setSlide] = useState(0)
+  const [autoplay, setAutoplay] = useState(true)
   const partnersTrack = useRef<HTMLDivElement>(null)
   const partnersPaused = useRef(false)
 
@@ -1579,12 +1613,14 @@ function HomePage() {
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined
 
+    if (!autoplay) return undefined
+
     const timer = setTimeout(() => {
       setSlide((current) => (current + 1) % heroSlides.length)
     }, 7000)
 
     return () => clearTimeout(timer)
-  }, [slide])
+  }, [slide, autoplay])
 
   return (
     <>
@@ -1594,79 +1630,64 @@ function HomePage() {
         aria-roledescription="carrossel"
         aria-label="Destaques"
       >
-        <div className="hero-slide" key={slide}>
-          <div className={`container hero-content`}>
-            <div className="hero-text">
-            <h1>{heroSlides[slide].title}</h1>
-            <p className="hero-subtitle">{heroSlides[slide].text}</p>
+        <div className="container hero-grid">
+          <div className="hero-text">
+            <div className="hero-slide" key={slide}>
+              <h1>
+                <HighlightedTitle title={heroSlides[slide].title} highlight={heroSlides[slide].highlight} />
+              </h1>
+              <p className="hero-subtitle">{heroSlides[slide].text}</p>
 
-            <div className="hero-actions">
-              <a className="btn btn-primary" href={heroSlides[slide].primary.href}>
-                {heroSlides[slide].primary.label}
-              </a>
-              <a className="btn btn-outline" href={heroSlides[slide].secondary.href}>
-                {heroSlides[slide].secondary.label}
-              </a>
+              <div className="hero-actions">
+                <a className="btn btn-primary" href={heroSlides[slide].primary.href}>
+                  {heroSlides[slide].primary.label}
+                </a>
+                <a className="btn btn-outline" href={heroSlides[slide].secondary.href}>
+                  {heroSlides[slide].secondary.label}
+                </a>
+              </div>
             </div>
+
+            <div className="hero-dots" role="tablist" aria-label="Escolher destaque">
+              {heroSlides.map((item, index) => (
+                <button
+                  key={item.eyebrow}
+                  type="button"
+                  role="tab"
+                  aria-selected={index === slide}
+                  aria-label={`Destaque ${index + 1}: ${item.eyebrow}`}
+                  className={`hero-dot${index === slide ? ' is-active' : ''}`}
+                  onClick={() => {
+                    setAutoplay(false)
+                    setSlide(index)
+                  }}
+                />
+              ))}
             </div>
           </div>
+
+          <figure className="hero-photo hero-slide" key={`foto-${slide}`}>
+            <img src={heroSlides[slide].image} alt={heroSlides[slide].imageAlt} />
+            <figcaption className="hero-tag">Tecnologia com presença humana.</figcaption>
+          </figure>
         </div>
 
-        <ul className="hero-floats" aria-label="O Núcleo em números">
-          <li className="hero-float">
-            <strong>51.833</strong>
-            <span>exames de telecardio</span>
-          </li>
-          <li className="hero-float">
-            <strong>20</strong>
-            <span>municípios ativos no Amazonas</span>
-          </li>
-          <li className="hero-float">
-            <strong>3</strong>
-            <span>serviços de telediagnóstico</span>
-          </li>
-        </ul>
-
-        <div className="container hero-dots" role="tablist" aria-label="Escolher destaque">
-          {heroSlides.map((item, index) => (
-            <button
-              key={item.eyebrow}
-              type="button"
-              role="tab"
-              aria-selected={index === slide}
-              aria-label={`Destaque ${index + 1}: ${item.eyebrow}`}
-              className={`hero-dot${index === slide ? ' is-active' : ''}`}
-              onClick={() => setSlide(index)}
-            />
-          ))}
+        <div className="container">
+          <ul className="hero-services" aria-label="Serviços do Núcleo">
+            {services.slice(0, 4).map((service) => (
+              <li key={service.slug}>
+                <a href={`#/servicos/${service.slug}`}>{service.title}</a>
+              </li>
+            ))}
+          </ul>
         </div>
+
+        <Waves bands={['lime', 'leaf', 'deep']} />
       </section>
 
-      <section className="trust-bar">
-        <div className="container trust-inner">
-          <p>Acompanhe o Núcleo nas redes sociais</p>
-          <div className="trust-logos" aria-label="Redes sociais">
-            {/* TODO: trocar "#" pelos links oficiais do Núcleo. */}
-            <a className="social-link" href="#" aria-label="Instagram">
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <rect x="3.5" y="3.5" width="17" height="17" rx="5" />
-                <circle cx="12" cy="12" r="4" />
-                <circle cx="17.2" cy="6.8" r="0.6" fill="currentColor" />
-              </svg>
-            </a>
-            <a className="social-link" href="#" aria-label="Facebook">
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true">
-                <path d="M13.5 21v-7.5h2.6l.4-3h-3V8.6c0-.9.3-1.5 1.600-1.500h1.500V4.400c-.3 0-1.200-.1-2.200-.1-2.300 0-3.800 1.400-3.800 3.900v2.300H8v3h2.600V21z" />
-              </svg>
-            </a>
-          </div>
-        </div>
-      </section>
-
-      <section id="painel" className="section screen">
+      <section id="painel" className="section">
         <div className="container">
           <div className="section-heading center">
-            <span className="eyebrow">Painel de Dados</span>
             <h2>Nossos números em saúde digital.</h2>
           </div>
 
@@ -1679,12 +1700,21 @@ function HomePage() {
             ))}
           </div>
 
+          <div className="mascot-note" role="note">
+            <span className="mascot mascot-explicando" aria-hidden="true" />
+            <p>
+              <strong>Números em atualização.</strong>
+              Eles aparecem aqui quando forem confirmados pela equipe do Núcleo.
+            </p>
+          </div>
+
           <div className="muni-heading">
             <h3>Telediagnóstico no Amazonas</h3>
             <p>Veja quais municípios do Amazonas já contam com o telediagnóstico do Núcleo.</p>
           </div>
           <MunicipalMap />
         </div>
+        <Waves bands={['leaf', 'lime', 'ivory']} />
       </section>
 
       <ServicesCarousel />
@@ -1692,7 +1722,6 @@ function HomePage() {
       <section id="publicacoes" className="section section-alt screen">
         <div className="container">
           <div className="section-heading center">
-            <span className="eyebrow">Publicações</span>
             <h2>Materiais, boletins e produção científica do Núcleo.</h2>
           </div>
 
@@ -1717,7 +1746,6 @@ function HomePage() {
       <section id="noticias" className="section screen">
         <div className="container">
           <div className="section-heading center">
-            <span className="eyebrow">Notícias</span>
             <h2>Últimas notícias</h2>
           </div>
 
@@ -1738,7 +1766,6 @@ function HomePage() {
       <section id="depoimentos" className="section section-alt screen">
         <div className="container">
           <div className="section-heading center">
-            <span className="eyebrow">Depoimentos</span>
             <h2>Quem vive a transformação percebe a diferença.</h2>
           </div>
 
@@ -1756,7 +1783,6 @@ function HomePage() {
       <section id="parcerias" className="section screen screen-end">
         <div className="container">
           <div className="section-heading center">
-            <span className="eyebrow">Parcerias</span>
             <h2>Parcerias que fortalecem a telessaúde.</h2>
           </div>
 
@@ -2084,11 +2110,11 @@ function App() {
         }`}
       >
         <div className="topbar-inner">
-          <a className="brand" href="#inicio">
-            <img
-              className="brand-mark"
-              src={logoBranca}
-              alt="Núcleo de Telessaúde FUnATI"
+          <a className="brand" href="#inicio" aria-label="Núcleo de Telessaúde FUnATI, página inicial">
+            <span
+              className="brand-logo"
+              aria-hidden="true"
+              style={{ '--logo': `url(${logoBranca})` } as CSSProperties}
             />
           </a>
 
